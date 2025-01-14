@@ -17,7 +17,7 @@ private:
   File openFile(SDClass &sd);
 public:
   String path;
-  char* caption;
+  String caption;
   uint16_t width, height;
 
   /**

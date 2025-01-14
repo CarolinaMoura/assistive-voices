@@ -28,13 +28,11 @@ DLabImage::DLabImage(String path, SDClass &sd)
     this->height = (dimensions[2] << 8) | dimensions[3];
 
     // Read caption
-    uint8_t captionSize = file.read();
-    this->caption = new char[captionSize + 1];
-
-    for (uint8_t i = 0; i < captionSize; i++) {
-        this->caption[i] = (char)file.read();
+    char c = file.read();
+    while(c != '\0') {
+      this->caption += c;
+      c = file.read();
     }
-    this->caption[captionSize] = '\0'; 
 
     Serial.println(this->caption);
     file.close();
@@ -42,21 +40,61 @@ DLabImage::DLabImage(String path, SDClass &sd)
 
 void DLabImage::drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = true, uint16_t x = 0, uint16_t y = 0, uint16_t multFactor = 4) {
     File file = this->openFile(sd);
-    uint16_t offset = 5 + strlen(this->caption);
+    uint16_t offset = 5 + (this->caption).length();
     file.seek(offset);
+
+    uint8_t encodingType = file.read();
 
     const int bufferSize = this->width * multFactor;
     uint8_t pixelBuffer[bufferSize << 1];
 
-    for (uint16_t y = 0; y < this->height; y += multFactor) {
-      file.read(pixelBuffer, bufferSize << 1);
-      if (invertColors) {
-        for (uint16_t i = 0; i < bufferSize; i++)
-          pixelBuffer[i] = ~pixelBuffer[i];
-      }
+    if(encodingType == 0){
+      for (uint16_t y = 0; y < this->height; y += multFactor) {
+        file.read(pixelBuffer, bufferSize << 1);
+        if (invertColors) {
+          for (uint16_t i = 0; i < bufferSize; i++)
+            pixelBuffer[i] = ~pixelBuffer[i];
+        }
 
-      tft.setAddrWindow(x, y, x + this->width, y + multFactor);
-      tft.pushColors(pixelBuffer, bufferSize, true);
+        tft.setAddrWindow(x, y, x + this->width, y + multFactor);
+        tft.pushColors(pixelBuffer, bufferSize, true);
+      }
+    } 
+    else {
+      const int bufferSize = this->width * multFactor;
+      uint16_t rowBuffer[bufferSize];
+      uint16_t currentX = 0;
+      uint16_t currentY = 0;
+
+      while (currentY < this->height) {
+          uint8_t qtt = file.read();  
+          uint8_t h = file.read();  
+          uint8_t l = file.read();  
+
+          uint16_t color = (h << 8) | l;
+
+          Serial.println("Quantity: " + (String)qtt);
+          Serial.println((String)h);
+          Serial.println((String)l);
+
+          if (invertColors) {
+              color = ~color;
+          }
+          for (uint8_t i = 0; i < qtt; i++) {
+              rowBuffer[currentX++] = color;
+
+              if (currentX >= this->width) {
+                  tft.setAddrWindow(x, currentY, x + this->width - 1, currentY);
+                  tft.pushColors(rowBuffer, this->width, true);
+
+                  currentX = 0;
+                  currentY++;
+                  if (currentY >= this->height) {
+                      break;
+                  }
+              }
+          }
+      }
     }
     file.close();
 
