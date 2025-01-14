@@ -49,10 +49,6 @@ def process_image(image, dimensions: tuple[int, int], caption: str):
 
     data_1 = encoding_1(rgb565_data)
     data_2 = encoding_2(rgb565_data)
-
-    print(data_1[:30])
-    print(f"Encoding 2 is {len(data_2)/len(data_1)*100}% of the original encoding")
-    print(data_2[:30])
     
     typ = 0
     data = data_1
