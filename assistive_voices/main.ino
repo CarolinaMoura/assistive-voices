@@ -8,8 +8,12 @@
 #define WHITE 0xFFFF
 #define BLACK 0x0
 #define RED 0xF800
+#define LIGHT_GREEN 0x2727
 
 MCUFRIEND_kbv tft;
+
+unsigned long lastDebounceTime = 0;  // Timestamp of the last button press
+const unsigned long debounceDelay = 50; 
 
 int SCREEN_WIDTH = 320;
 int SCREEN_HEIGHT = 480;
@@ -21,38 +25,24 @@ const int rightLedPin = 8;
 
 int leftButtonState = 0;
 int rightButtonState = 0;
-bool isRedSquareOn = false;
 int counter = 0;
 
-int imageWidth = 320; 
-int imageHeight = 320;
-
-// Image filenames on the SD card
-const char* imageNames[] = {
-  // "hambre",
-  // "agua",
-  // "dolor",
-  // "dormir"
-  "annab",
-  "percy"
-};
+String* categories = nullptr;
+int categoriesCount = 0, categoriesPtr = 0;
 
 uint16_t adjustColor(uint16_t color) {
     return INVERT_COLORS ? ~color : color;
 }
 
-File imageFile;  // File object for the image
-const int numImages = sizeof(imageNames) / sizeof(imageNames[0]); // Number of images
+String* fileArray = nullptr;
+int filesCount = 0, filesPtr = 0;
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(250000);
   const int ID = 0x9486;
   tft.begin(ID);
   tft.fillScreen(adjustColor(TFT_WHITE));
 
-  pinMode(leftLedPin, OUTPUT);
-  pinMode(rightLedPin, OUTPUT);
   pinMode(leftButtonPin, INPUT);
   pinMode(rightButtonPin, INPUT);
 
@@ -63,30 +53,63 @@ void setup() {
   Serial.println("SD card initialized.");
 
   tft.setRotation(2);
-  // int tmp = SCREEN_WIDTH;
-  // SCREEN_WIDTH = SCREEN_HEIGHT;
-  // SCREEN_HEIGHT = tmp;
-  // displayImage("kris_2x3");
   
-  // Display image on TFT
-  // displayImage("/rgb_cat");  // Assuming your image is saved as "image.rgb565"
-  // listFiles(SD.open("/"), 0);
-  DLabImage img("annab", SD);
-  Serial.println(img.caption);
-  // img.drawImage()
-  
-  displayImage(imageNames[counter]);
+  getContent("main", &categories, &categoriesCount);
+
+  if(categoriesCount == 0) return;
+
+  getContent("main/" + categories[0], &fileArray, &filesCount);
+  displayImage("main/" + categories[0] + "/" + fileArray[0]);
+}
+
+void getContent(String dirname, String** arr, int* count) {
+  File dir = SD.open(dirname);
+  if(!dir.isDirectory()){
+    Serial.println("Trying to open something that is not a folder");
+    return;
+  }
+
+  while (true) {
+    File entry = dir.openNextFile();
+    if (!entry) {
+        break;
+    }
+
+    String name = entry.name();
+
+    if (name[0] == '_') {
+        entry.close();
+        continue;
+    }
+
+    String* tempArray = new String[*count + 1];
+    for (int i = 0; i < *count; i++) {
+        tempArray[i] = (*arr)[i];
+    }
+    delete[] (*arr);
+    *arr = tempArray;
+
+    String fileName = name; 
+    for (int i = 0; i < fileName.length(); i++) {
+        fileName[i] = tolower(fileName[i]); 
+    }
+    (*arr)[*count] = fileName;
+    (*count)++;
+
+    entry.close();
+  }
+
+  dir.close();
 }
 
 void listFiles(File dir, int numTabs) {
   while (true) {
-    File entry = dir.openNextFile();  // Open the next file
+    File entry = dir.openNextFile();
     if (!entry) {
-      // No more files
       break;
     }
     for (int i = 0; i < numTabs; i++) {
-      Serial.print('\t');  // Print tabs for subdirectory levels
+      Serial.print('\t');
     }
     Serial.print(entry.name());  // Print file name
     if (entry.isDirectory()) {
@@ -104,24 +127,22 @@ void listFiles(File dir, int numTabs) {
 
 void loop() {
   // Read button states
-  leftButtonState = digitalRead(leftButtonPin);
+  int leftRead = digitalRead(leftButtonPin);
+  int lastState = leftButtonState;
   rightButtonState = digitalRead(rightButtonPin);
 
-  if (leftButtonState == LOW) {
+  leftButtonState = leftRead;
+
+  if (lastState == HIGH && leftRead == LOW) {
     digitalWrite(leftLedPin, HIGH);
     tft.fillScreen(adjustColor(WHITE));
-    counter += 1;
-    counter %= numImages;
-    displayImage(imageNames[counter]);
-  } else {
-    digitalWrite(leftLedPin, LOW);
+    (++filesPtr) %= filesCount;
+    displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr]);
   }
 
   if (rightButtonState == LOW) {
     digitalWrite(rightLedPin, HIGH);
-    uint16_t color = RED;
-    if(isRedSquareOn) color = WHITE;
-    isRedSquareOn=!isRedSquareOn;
+    uint16_t color = LIGHT_GREEN;
     drawSquare(color);
   } else {
     digitalWrite(rightLedPin, LOW);
@@ -129,14 +150,14 @@ void loop() {
 }
 
 void drawSquare(uint16_t color) {
-  uint16_t thickness = 5;
+  uint16_t thickness = 10;
   tft.fillRect(0, 0, SCREEN_WIDTH, thickness, color);
   tft.fillRect(0, 0 + SCREEN_HEIGHT - thickness, SCREEN_WIDTH, thickness, color);
   tft.fillRect(0, 0, thickness, SCREEN_HEIGHT, color);
   tft.fillRect(0 + SCREEN_WIDTH - thickness, 0, thickness, SCREEN_HEIGHT, color);
 }
 
-void displayImage(const char* filename) {
+void displayImage(String filename) {
   DLabImage img(filename, SD);
   img.drawImage(tft, SD, false);
 }

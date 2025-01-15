@@ -34,7 +34,6 @@ DLabImage::DLabImage(String path, SDClass &sd)
       c = file.read();
     }
 
-    Serial.println(this->caption);
     file.close();
   }
 
@@ -72,10 +71,6 @@ void DLabImage::drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = tr
           uint8_t l = file.read();  
 
           uint16_t color = (h << 8) | l;
-
-          Serial.println("Quantity: " + (String)qtt);
-          Serial.println((String)h);
-          Serial.println((String)l);
 
           if (invertColors) {
               color = ~color;
