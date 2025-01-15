@@ -22,27 +22,35 @@ const int rightLedPin = 8;
 int leftButtonState = 0;
 int rightButtonState = 0;
 bool isRedSquareOn = false;
-int counter = 0;
+int imageCounter = 0;
+int folderCounter = 0;
+const int maxFiles = 100; // Adjust this based on your needs
 
 int imageWidth = 320; 
 int imageHeight = 320;
 
 // Image filenames on the SD card
-const char* imageNames[] = {
-  // "hambre",
-  // "agua",
-  // "dolor",
-  // "dormir"
-  "annab",
-  "percy"
-};
+// const char* imageNames[] = {
+//   // "hambre",
+//   // "agua",
+//   // "dolor",
+//   // "dormir"
+//   "annab",
+//   "percy"
+// };
+
+String imageNames[maxFiles];
+int numImages = 0;
+
+String folderNames[maxFiles];
+int numFolders = 0; //later make dialogo go first
 
 uint16_t adjustColor(uint16_t color) {
     return INVERT_COLORS ? ~color : color;
 }
 
 File imageFile;  // File object for the image
-const int numImages = sizeof(imageNames) / sizeof(imageNames[0]); // Number of images
+// const int numImages = sizeof(imageNames) / sizeof(imageNames[0]); // Number of images
 
 void setup() {
   // put your setup code here, to run once:
@@ -63,19 +71,39 @@ void setup() {
   Serial.println("SD card initialized.");
 
   tft.setRotation(2);
-  // int tmp = SCREEN_WIDTH;
-  // SCREEN_WIDTH = SCREEN_HEIGHT;
-  // SCREEN_HEIGHT = tmp;
-  // displayImage("kris_2x3");
   
-  // Display image on TFT
-  // displayImage("/rgb_cat");  // Assuming your image is saved as "image.rgb565"
-  // listFiles(SD.open("/"), 0);
-  DLabImage img("annab", SD);
-  Serial.println(img.caption);
-  // img.drawImage()
   
-  displayImage(imageNames[counter]);
+  // numFolders = getFileNames("/", folderNames, false); //later make dialogo go first
+  numImages = getFileNames(folderNames[folderCounter], imageNames);
+  
+  displayImage(imageNames[imageCounter]);
+}
+
+int getFileNames(const String folderPath, String* fileNames, bool isFileImage = true) {
+  File root = SD.open(folderPath);
+  if (!root) {
+    Serial.println("Failed to open directory!");
+    return 0;
+  }
+  if (!root.isDirectory()) {
+    Serial.println("Provided path is not a directory!");
+    return 0;
+  }
+
+  int count = 0;
+  File file = root.openNextFile();
+  while (file && count < maxFiles) {
+    if (!file.isDirectory() && !isFileImage){
+      Serial.println("A file was found which is not a directory.");
+    } else {
+      fileNames[count] = String(file.name());
+      count++;
+    }
+    file.close();
+    file = root.openNextFile();
+  }
+  root.close();
+  return count;
 }
 
 void listFiles(File dir, int numTabs) {
@@ -110,9 +138,9 @@ void loop() {
   if (leftButtonState == LOW) {
     digitalWrite(leftLedPin, HIGH);
     tft.fillScreen(adjustColor(WHITE));
-    counter += 1;
-    counter %= numImages;
-    displayImage(imageNames[counter]);
+    imageCounter += 1;
+    imageCounter %= numImages;
+    displayImage(folderNames[folderCounter] + "/" + imageNames[imageCounter]);
   } else {
     digitalWrite(leftLedPin, LOW);
   }
@@ -136,7 +164,7 @@ void drawSquare(uint16_t color) {
   tft.fillRect(0 + SCREEN_WIDTH - thickness, 0, thickness, SCREEN_HEIGHT, color);
 }
 
-void displayImage(const char* filename) {
+void displayImage(const String filename) {
   DLabImage img(filename, SD);
   img.drawImage(tft, SD, false);
 }
