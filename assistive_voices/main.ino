@@ -91,13 +91,17 @@ void displayWords() {
   tft.fillScreen(adjustColor(WHITE)); // Clear the screen
   tft.setTextColor(adjustColor(0));
   tft.setFont(&FreeSans12pt7b);
+  
+  // get standard word weight
+  int16_t std_x=0, std_y=0, std_w=0, std_h = 0;
+  tft.setTextSize(2);
+  tft.getTextBounds("word", 0, 0, &std_x, &std_y, &std_w, &std_h);
 
   for (int i = 0; i < screenWords; i++) {
     // Extract the dimensions of the current word
     int16_t x1, y1;
     uint16_t w, h;
     int currentWord = (categoriesTempPtr + i) % categoriesCount;
-    // Serial.println("adding word:" + String(currentWord));
 
     tft.setTextSize(2);
     tft.getTextBounds(categories[currentWord], 0, 0, &x1, &y1, &w, &h);
@@ -107,7 +111,7 @@ void displayWords() {
     }
 
     // Set the cursor in the right position
-    int x = (tft.width() - w) >> 1, y = 45 + (40+h)*i + (h >> 1);
+    int x = (tft.width() - w) >> 1, y = 45 + (40+std_h)*i + (std_h >> 1);
     tft.setCursor(x, y);
     tft.print(categories[currentWord]);
 
@@ -133,12 +137,10 @@ void loop() {
         tempPtr++;
         drawSelectSquare(adjustColor(WHITE), dimensions[tempPtr-1][0], dimensions[tempPtr-1][1], dimensions[tempPtr-1][2], dimensions[tempPtr-1][3], thickness);
         drawSelectSquare(adjustColor(RED), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
-        delay(500);
       } else {
         tempPtr = 0;
         categoriesTempPtr = (categoriesTempPtr + screenWords) % categoriesCount;
         displayWords();
-        delay(500);
       }
 
     } else if (leftButton.stateChanged() && leftButton.read() == LOW) {
@@ -158,13 +160,13 @@ void loop() {
     }
 
   } else {
-    if (leftButton.stateChanged() && leftButton.read() == LOW) {
+    if (rightButton.stateChanged() && rightButton.read() == LOW) {
       tft.fillScreen(adjustColor(WHITE));
       (++filesPtr) %= filesCount;
       displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr]);
     }
 
-    if (rightButton.stateChanged() && rightButton.read() == LOW) {
+    if (leftButton.stateChanged() && leftButton.read() == LOW) {
       uint16_t color = LIGHT_GREEN;
       drawSquare(color);
       String file_name = "main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr] ; 
