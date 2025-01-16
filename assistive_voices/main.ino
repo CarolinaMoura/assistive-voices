@@ -18,13 +18,13 @@ const unsigned long debounceDelay = 50;
 int SCREEN_WIDTH = 320;
 int SCREEN_HEIGHT = 480;
 
-const int leftButtonPin = 2;     // blue
-const int rightButtonPin = 3;    // red
-const int leftLedPin = 9;
-const int rightLedPin = 8;
+const int leftButtonPin = 3;
+const int rightButtonPin = 4;
+const int teacherButton = 2;
 
 int leftButtonState = 0;
 int rightButtonState = 0;
+int teacherButtonState = 0;
 int counter = 0;
 int teacher_mode = false;
 
@@ -72,6 +72,7 @@ void setup() {
 
   pinMode(leftButtonPin, INPUT);
   pinMode(rightButtonPin, INPUT);
+  pinMode(teacherButton, INPUT);
 
   if (!SD.begin(53)) {
     Serial.println("SD card initialization failed!");
@@ -188,7 +189,20 @@ void loop() {
       digitalWrite(rightLedPin, LOW);
     }
   }
-  
+  int reading = digitalRead(teacherButton);
+  if (reading != teacherButtonState) {
+    lastDebounceTime = millis();
+  }
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading != teacherButtonState) {
+      Serial.println("entrei");
+      teacherButtonState = reading;
+
+      if (teacherButtonState == LOW) {
+        tft.fillScreen(TFT_GREEN);
+      }
+    }
+  }
 }
 
 
