@@ -175,18 +175,14 @@ void loop() {
     leftButtonState = leftRead;
 
     if (lastState == HIGH && leftRead == LOW) {
-      digitalWrite(leftLedPin, HIGH);
       tft.fillScreen(adjustColor(WHITE));
       (++filesPtr) %= filesCount;
       displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr]);
     }
 
     if (rightButtonState == LOW) {
-      digitalWrite(rightLedPin, HIGH);
       uint16_t color = LIGHT_GREEN;
       drawSquare(color);
-    } else {
-      digitalWrite(rightLedPin, LOW);
     }
   }
   int reading = digitalRead(teacherButton);
