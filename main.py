@@ -9,9 +9,6 @@ Int16 = NewType('Int16', int)
 Int8 = NewType('Int8', int)
 
 def get_high_and_low_bytes(num: Int16) -> list[Int8, Int8]:
-    """
-    Given a 16-bit integer, returns a tuple containing the high and low bytes.
-    """
     high_byte = (num >> 8) & 0xFF
     low_byte = num & 0xFF
     return [high_byte, low_byte]
@@ -23,7 +20,6 @@ def convert_image_to_rgb565(image, width, height):
     img = img.convert("RGB")
     rgb565_data = []
 
-    # Normalize colors (optional, to enhance colors)
     img = Image.eval(img, lambda x: int(x * 1.1) if x * 1.1 < 255 else 255)
 
     for pixel in img.getdata():
@@ -35,65 +31,43 @@ def convert_image_to_rgb565(image, width, height):
 
 def process_image(image, dimensions: tuple[int, int], caption: str):
     width, height = dimensions
-
     rgb565_data = convert_image_to_rgb565(image, width, height)
 
     byte_array = bytearray()
-
-    # Dimensions
-    byte_array.extend([ width >> 8, width & 0xFF, height >> 8, height & 0xFF])
-
-    # Size of the caption (maximum of 256 characters, so 1 byte)
-    # byte_array.extend([len(caption.encode())])
+    byte_array.extend([width >> 8, width & 0xFF, height >> 8, height & 0xFF])
     byte_array.extend(caption.encode() + b'\0')
 
     data_1 = encoding_1(rgb565_data)
     data_2 = encoding_2(rgb565_data)
-    
+
     typ = 0
     data = data_1
-
-    if len(data_1) > len(data_2):
+    if len(data_1) * 0.05 > len(data_2):
         typ = 1
         data = data_2
 
     byte_array.extend([typ])
     byte_array.extend(data)
-    
+
     return byte_array
 
 def encoding_1(rgb565_data: list[Int16]) -> list[Int8]:
-    """
-    Encodes a list of 16-bit RGB565 color values into a list of 8-bit values.
-    """
     final_data: list[Int8] = []
     for color in rgb565_data:
         final_data.extend(get_high_and_low_bytes(color))
     return final_data
 
 def encoding_2(rgb565_data: list[Int16]) -> list[Int8]:
-    """
-    Encodes a list of RGB565 data using a more efficient method.
-    Args:
-        rgb565_data (list[Int16]): A list of 16-bit integers representing RGB565 encoded data.
-    Returns:
-        list[Int8]: A list of 8-bit integers representing the encoded RGB565 data according
-                    to encoding algorithm 2.
-    """
     def count_contiguous(data: list[Int16], start: int) -> int:
-        """
-        Counts the number of contiguous elements in the list starting from the given index.
-        """
         count = 1
         for i in range(start + 1, len(data)):
             if data[i] == data[start]:
                 count += 1
             else:
-                break      
+                break
         return count
 
     final_data: list[Int8] = []
-
     ptr = 0
     while ptr < len(rgb565_data):
         count = count_contiguous(rgb565_data, ptr)
@@ -101,63 +75,91 @@ def encoding_2(rgb565_data: list[Int16]) -> list[Int8]:
         while count > 0:
             qtt = min(0xFF, count)
             final_data.extend([qtt, *pixel])
-            count -= qtt 
+            count -= qtt
             ptr += qtt
-    
+
     return final_data
 
 ###### Streamlit Interface ######
 AVAILABLE_DIMENSIONS = [(320, 320)]
 
-def main():
-    st.set_page_config(page_title="Assistive Voices", page_icon=":smiley:")
-    st.title("Image Processor for Assistive Voices :smiley: :microphone:")
-    st.subheader("Provided by D-Lab Team Mexico")
+# Initialize session state for language
+if "language" not in st.session_state:
+    st.session_state.language = "es"  # Default language is Spanish
 
-    # File uploader
-    uploaded_file = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg", "bmp", "gif"])
+# Language toggle
+def toggle_language():
+    st.session_state.language = "en" if st.session_state.language == "es" else "es"
+
+# Define text translations
+translations = {
+    "title": {"en": "Image Processor for Assistive Voices", "es": "Procesador de Imágenes para Voces Asistentes"},
+    "subheader": {"en": "Provided by D-Lab Team Mexico", "es": "Proveído por D-Lab Grupo México"},
+    "upload_label": {"en": "Upload an image", "es": "Sube una imagen"},
+    "dimensions_label": {"en": "Select dimensions", "es": "Selecciona dimensiones"},
+    "caption_label": {"en": "Enter a caption for the file (this text will appear under the image and should not include typical Spanish accents like á, é, í, ó, ú, ñ).", "es": "Introduce un título para la imagen (este texto aparecerá debajo de la imagen y no debe incluir acentos típicos como á, é, í, ó, ú, ñ)."},
+    "filename_label": {"en": "Enter a filename for the download file (this is just the file name, but should not contain spaces or typical Spanish accents like á, é, í, ó, ú, ñ. Should be 8 characters or less).", 
+                       "es": "Introduce un nombre para el archivo descargable (esto es solo el nombre del archivo, pero no debe contener espacios ni acentos típicos como á, é, í, ó, ú, ñ. Debe tener 8 caracteres o menos)."},
+    "filename_error": {"en": "Filename must be 8 characters or fewer.", "es": "El nombre del archivo debe tener 8 caracteres o menos."},
+    "caption_error": {"en": "Caption cannot have special characters. Typed: ", "es": "El título no puede tener caracteres especiales. Escribió: "},
+    "process_button": {"en": "Process Image", "es": "Procesar Imagen"},
+    "success_message": {"en": "Image processed successfully! Use the download button to save the file.",
+                        "es": "¡Imagen procesada con éxito! Usa el botón de descarga para guardar el archivo."},
+    "error_message": {"en": "An error occurred:", "es": "Ocurrió un error:"},
+    "download_button": {"en": "Download Processed Image", "es": "Descargar Imagen Procesada"},
+    "language_button": {"en": "Switch to Spanish", "es": "Cambiar a Inglés"},
+}
+
+def main():
+    session_language = st.session_state.language
+    st.set_page_config(page_title=translations["title"][st.session_state.language], page_icon=":smiley:")
+    st.title(translations["title"][session_language] + " :smiley: :microphone:")
+    st.subheader(translations["subheader"][session_language])
+
+    st.button(translations["language_button"][st.session_state.language], on_click=toggle_language)
+
+    uploaded_file = st.file_uploader(translations["upload_label"][st.session_state.language], type=["png", "jpg", "jpeg", "bmp", "gif"])
     if uploaded_file:
         st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
 
-    # Dimensions selection
     dimensions = st.selectbox(
-        "Select dimensions",
+        translations["dimensions_label"][st.session_state.language],
         ["x".join(map(str, dim)) for dim in AVAILABLE_DIMENSIONS],
         help="Will redimension and not crop."
     )
 
-    # Caption input
-    caption = st.text_input("Enter a caption for the file", "")
+    caption = st.text_input(translations["caption_label"][st.session_state.language], "")
 
-    # Caption input
-    filename = st.text_input("Enter a filename for the download file (max of 8 characters)", "")
+    if not caption.isascii():
+        non_ascii = [ c for c in caption if not c.isascii() ]
+        st.error(translations["caption_error"][st.session_state.language] + str(non_ascii))
+    
+    filename = st.text_input(
+        translations["filename_label"][st.session_state.language],
+    )
 
     if len(filename) > 8:
-        st.error("Filename must be 8 characters or fewer.")
+        st.error(translations["filename_error"][st.session_state.language])
 
-    process_button = st.button("Process Image", disabled=not (uploaded_file and len(filename) <= 8 ))
+    process_button = st.button(translations["process_button"][st.session_state.language], disabled=not (uploaded_file and len(filename) <= 8 and caption.isascii()))
 
     if process_button:
         try:
-            # Open uploaded image
             image = Image.open(uploaded_file)
-
-            # Process the image
             data = process_image(image, tuple(map(int, dimensions.split("x"))), caption=caption.strip())
             data_io = io.BytesIO(data)
 
-            # Display download button
             st.download_button(
-                label="Download Processed Image",
+                label=translations["download_button"][st.session_state.language],
                 data=data_io,
-                file_name=f"{filename}",
+                file_name=f"{filename}.bin",
                 mime="application/octet-stream"
             )
 
-            st.success("Image processed successfully! Use the download button to save the file.")
+            st.success(translations["success_message"][st.session_state.language])
 
         except Exception as e:
-            st.error(f"An error occurred: {e}")
+            st.error(f"{translations['error_message'][st.session_state.language]} {e}")
 
 if __name__ == "__main__":
     main()
