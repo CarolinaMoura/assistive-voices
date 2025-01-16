@@ -3,12 +3,14 @@
 #include <MCUFRIEND_kbv.h>
 #include <Fonts/FreeSans12pt7b.h> 
 #include "DLabImage.h"
+#include "Debounce.h"
 #define INVERT_COLORS true
 
 #define WHITE 0xFFFF
 #define BLACK 0x0
 #define RED 0xF800
 #define LIGHT_GREEN 0x2727
+#define RESISTANCE 0 // little resistance 
 
 MCUFRIEND_kbv tft;
 
@@ -20,11 +22,12 @@ int SCREEN_HEIGHT = 480;
 
 const int leftButtonPin = 3;
 const int rightButtonPin = 4;
-const int teacherButton = 2;
+const int teacherButtonPin = 2;
 
-int leftButtonState = 0;
-int rightButtonState = 0;
-int teacherButtonState = 0;
+Debounce leftButton( leftButtonPin, RESISTANCE) ;
+Debounce rightButton( rightButtonPin , RESISTANCE) ;
+Debounce teacherButton( teacherButtonPin , RESISTANCE ) ;
+
 int counter = 0;
 int teacher_mode = false;
 
@@ -63,16 +66,15 @@ int dimensions[6][4] = {
 //   "word9"
 // };
 
-
 void setup() {
   Serial.begin(250000);
   const int ID = 0x9486;
   tft.begin(ID);
   tft.fillScreen(adjustColor(TFT_WHITE));
 
-  pinMode(leftButtonPin, INPUT);
-  pinMode(rightButtonPin, INPUT);
-  pinMode(teacherButton, INPUT);
+  leftButton.begin();
+  rightButton.begin();
+  teacherButton.begin();
 
   if (!SD.begin(53)) {
     Serial.println("SD card initialization failed!");
@@ -88,11 +90,11 @@ void setup() {
 
   getContent("main/" + categories[0], &fileArray, &filesCount);
   displayImage("main/" + categories[0] + "/" + fileArray[0]);
-  
+
   // categoriesCount = 9;
   // displayWords();
 }
-
+ 
 void displayWords() {
   // function that displays 6 categories at the time in teacher_mode
 
@@ -135,16 +137,9 @@ void drawSelectSquare(uint16_t color, int x1, int y1, int w, int h, uint16_t thi
   tft.fillRect(x1 + w - thickness, y1, thickness, h, color);
 }
 
-
 void loop() {
-
   if (teacher_mode) {
-    // teacher mode
-    // Read button states
-    rightButtonState = digitalRead(rightButtonPin);
-    leftButtonState = digitalRead(leftButtonPin);
-    
-    if (rightButtonState == LOW) {
+    if (rightButton.stateChanged() && rightButton.read() == LOW) {
       if (tempPtr < screenWords-1) {
         tempPtr++;
         Serial.println("Next one: " + (String)(categoriesTempPtr + tempPtr));
@@ -158,45 +153,31 @@ void loop() {
         displayWords();
         delay(500);
       }
-    } else if (leftButtonState == LOW) {
+    } else if (leftButton.stateChanged() && leftButton.read() == LOW) {
       categoriesPtr = (categoriesTempPtr + tempPtr) % categoriesCount;
       drawSelectSquare(adjustColor(LIGHT_GREEN), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
       teacher_mode = false;
       delay(500);
     }
-
   } else {
-    // student mode
-    // Read button states
-    int leftRead = digitalRead(leftButtonPin);
-    int lastState = leftButtonState;
-    rightButtonState = digitalRead(rightButtonPin);
-
-    leftButtonState = leftRead;
-
-    if (lastState == HIGH && leftRead == LOW) {
+    if (leftButton.stateChanged() && leftButton.read() == LOW) {
       tft.fillScreen(adjustColor(WHITE));
       (++filesPtr) %= filesCount;
       displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr]);
     }
 
-    if (rightButtonState == LOW) {
+    if (rightButton.stateChanged() && rightButton.read() == LOW) {
       uint16_t color = LIGHT_GREEN;
       drawSquare(color);
     }
   }
-  int reading = digitalRead(teacherButton);
-  if (reading != teacherButtonState) {
-    lastDebounceTime = millis();
-  }
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    if (reading != teacherButtonState) {
-      Serial.println("entrei");
-      teacherButtonState = reading;
 
-      if (teacherButtonState == LOW) {
-        tft.fillScreen(TFT_GREEN);
-      }
+  if (teacherButton.stateChanged() && teacherButton.read() == LOW) {
+    teacher_mode = !teacher_mode;
+    if (teacher_mode) {
+      displayWords();
+    } else {
+      tft.fillScreen(adjustColor(WHITE));
     }
   }
 }
