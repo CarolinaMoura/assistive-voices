@@ -20,9 +20,9 @@ const unsigned long debounceDelay = 50;
 int SCREEN_WIDTH = 320;
 int SCREEN_HEIGHT = 480;
 
-const int leftButtonPin = 3;
-const int rightButtonPin = 4;
-const int teacherButtonPin = 2;
+const int leftButtonPin = 8;
+const int rightButtonPin = 9;
+const int teacherButtonPin = 10;
 
 Debounce leftButton( leftButtonPin, RESISTANCE) ;
 Debounce rightButton( rightButtonPin , RESISTANCE) ;
@@ -142,23 +142,32 @@ void loop() {
     if (rightButton.stateChanged() && rightButton.read() == LOW) {
       if (tempPtr < screenWords-1) {
         tempPtr++;
-        Serial.println("Next one: " + (String)(categoriesTempPtr + tempPtr));
         drawSelectSquare(adjustColor(WHITE), dimensions[tempPtr-1][0], dimensions[tempPtr-1][1], dimensions[tempPtr-1][2], dimensions[tempPtr-1][3], thickness);
         drawSelectSquare(adjustColor(RED), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
         delay(500);
       } else {
-        Serial.println("Renew screen.");
         tempPtr = 0;
         categoriesTempPtr = (categoriesTempPtr + screenWords) % categoriesCount;
         displayWords();
         delay(500);
       }
+
     } else if (leftButton.stateChanged() && leftButton.read() == LOW) {
       categoriesPtr = (categoriesTempPtr + tempPtr) % categoriesCount;
       drawSelectSquare(adjustColor(LIGHT_GREEN), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
       teacher_mode = false;
       delay(500);
+
+      // retrieve images from that folder and initiate student mode within that folder
+      getContent("main/" + categories[categoriesPtr], &fileArray, &filesCount);
+      tft.fillScreen(adjustColor(WHITE)); // Clear the screen
+      displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[0]);
+      Serial.println(categories[categoriesPtr] + ", " + fileArray[0]);
+
+      // reset the temporary and image pointers
+      categoriesTempPtr = categoriesPtr, tempPtr = 0, filesPtr = 0;
     }
+
   } else {
     if (leftButton.stateChanged() && leftButton.read() == LOW) {
       tft.fillScreen(adjustColor(WHITE));
@@ -173,17 +182,21 @@ void loop() {
   }
 
   if (teacherButton.stateChanged() && teacherButton.read() == LOW) {
-    teacher_mode = !teacher_mode;
+    tft.fillScreen(adjustColor(WHITE));
+    teacher_mode = !(teacher_mode);
     if (teacher_mode) {
+      categoriesTempPtr = categoriesPtr, tempPtr = 0;
       displayWords();
     } else {
-      tft.fillScreen(adjustColor(WHITE));
+      displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr]);
     }
   }
 }
 
 
 void getContent(String dirname, String** arr, int* count) {
+  *count = 0;
+  *arr = nullptr;
   File dir = SD.open(dirname);
   if(!dir.isDirectory()){
     Serial.println("Trying to open something that is not a folder");
@@ -255,5 +268,5 @@ void drawSquare(uint16_t color) {
 
 void displayImage(String filename) {
   DLabImage img(filename, SD);
-  img.drawImage(tft, SD, false);
+  img.drawImage(tft, SD, INVERT_COLORS);
 }
