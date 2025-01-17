@@ -35,7 +35,7 @@ def process_image(image, dimensions: tuple[int, int], caption: str):
 
     byte_array = bytearray()
     byte_array.extend([width >> 8, width & 0xFF, height >> 8, height & 0xFF])
-    byte_array.extend(caption.encode() + b'\0')
+    byte_array.extend(caption.encode(encoding="437") + b'\0')
 
     data_1 = encoding_1(rgb565_data)
     data_2 = encoding_2(rgb565_data)
@@ -148,7 +148,7 @@ def main():
             st.download_button(
                 label=translations["download_button"][st.session_state.language],
                 data=data_io,
-                file_name=f"{filename}.bin",
+                file_name=f"{filename}",
                 mime="application/octet-stream"
             )
 
