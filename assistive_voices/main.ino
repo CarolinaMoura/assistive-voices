@@ -20,8 +20,8 @@ const unsigned long debounceDelay = 50;
 int SCREEN_WIDTH = 320;
 int SCREEN_HEIGHT = 480;
 
-const int leftButtonPin = 8;
-const int rightButtonPin = 11;
+const int leftButtonPin = 3;
+const int rightButtonPin = 4;
 const int teacherButtonPin = 2;
 
 Debounce leftButton( leftButtonPin, RESISTANCE) ;
