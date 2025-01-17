@@ -4,7 +4,7 @@
 #include <Fonts/FreeSans12pt7b.h> 
 #include "DLabImage.h"
 #include "Debounce.h"
-#define INVERT_COLORS true
+#define INVERT_COLORS false
 
 #define WHITE 0xFFFF
 #define BLACK 0x0
@@ -20,8 +20,8 @@ const unsigned long debounceDelay = 50;
 int SCREEN_WIDTH = 320;
 int SCREEN_HEIGHT = 480;
 
-const int leftButtonPin = 3;
-const int rightButtonPin = 4;
+const int leftButtonPin = 8;
+const int rightButtonPin = 9;
 const int teacherButtonPin = 2;
 
 Debounce leftButton( leftButtonPin, RESISTANCE) ;
@@ -53,18 +53,6 @@ int dimensions[6][4] = {
   {0, 0, 0, 0},
 };
 
-// // words
-// String words[] = {
-//   "word1",
-//   "word2",
-//   "word3",
-//   "word4",
-//   "word5",
-//   "word6",
-//   "word7",
-//   "word8",
-//   "word9"
-// };
 
 void setup() {
   Serial.begin(250000);
@@ -291,3 +279,5 @@ void sendDFCommand(HardwareSerial &dfPlayerSerial, byte command, int param) {
         Serial.println(dfPlayerSerial.read(), HEX);
     }
 }
+
+
