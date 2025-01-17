@@ -144,17 +144,12 @@ int DLabImage::getAudioFile() {
         return ;
     }
 
-<<<<<<< HEAD
     int track_number = 1, best = 1;
     int cur_track_number_score = (this->caption).length();
-=======
-    int track_number = 1;
->>>>>>> e13bbe9 (integrated DFPlayer Mini upon select)
     String line ;
 
     while ( metadata_file.available() ) {
         line = metadata_file.readStringUntil( '\n' ) ;
-<<<<<<< HEAD
         int score = this->levenshtein(line, this->caption);
         if (score < cur_track_number_score) {
           
@@ -165,13 +160,6 @@ int DLabImage::getAudioFile() {
 
           cur_track_number_score = score;
           best = track_number;
-=======
-
-        if ( line.equals( this->caption ) ) {
-
-          metadata_file.close();
-          return track_number ;
->>>>>>> e13bbe9 (integrated DFPlayer Mini upon select)
         }
 
         ++track_number ;
@@ -179,10 +167,5 @@ int DLabImage::getAudioFile() {
 
     Serial.println(" No matching caption found in metadata.txt for '" + this->caption + "'");
     metadata_file.close();
-<<<<<<< HEAD
     return best;
 }
-=======
-    return -1 ;
-}
->>>>>>> e13bbe9 (integrated DFPlayer Mini upon select)
