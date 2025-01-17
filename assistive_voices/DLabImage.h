@@ -14,7 +14,11 @@
 class DLabImage {
 private:
   File openFile(SDClass &sd);
+<<<<<<< HEAD
   int levenshtein(String s1, String s2);
+=======
+
+>>>>>>> e13bbe9 (integrated DFPlayer Mini upon select)
 public:
   String path;
   String caption;

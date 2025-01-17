@@ -21,8 +21,8 @@ int SCREEN_WIDTH = 320;
 int SCREEN_HEIGHT = 480;
 
 const int leftButtonPin = 8;
-const int rightButtonPin = 9;
-const int teacherButtonPin = 10;
+const int rightButtonPin = 11;
+const int teacherButtonPin = 2;
 
 Debounce leftButton( leftButtonPin, RESISTANCE) ;
 Debounce rightButton( rightButtonPin , RESISTANCE) ;
@@ -91,17 +91,13 @@ void displayWords() {
   tft.fillScreen(adjustColor(WHITE)); // Clear the screen
   tft.setTextColor(adjustColor(0));
   tft.setFont(&FreeSans12pt7b);
-  
-  // get standard word weight
-  int16_t std_x=0, std_y=0, std_w=0, std_h = 0;
-  tft.setTextSize(2);
-  tft.getTextBounds("word", 0, 0, &std_x, &std_y, &std_w, &std_h);
 
   for (int i = 0; i < screenWords; i++) {
     // Extract the dimensions of the current word
     int16_t x1, y1;
     uint16_t w, h;
     int currentWord = (categoriesTempPtr + i) % categoriesCount;
+    // Serial.println("adding word:" + String(currentWord));
 
     tft.setTextSize(2);
     tft.getTextBounds(categories[currentWord], 0, 0, &x1, &y1, &w, &h);
@@ -111,7 +107,7 @@ void displayWords() {
     }
 
     // Set the cursor in the right position
-    int x = (tft.width() - w) >> 1, y = 45 + (40+std_h)*i + (std_h >> 1);
+    int x = (tft.width() - w) >> 1, y = 45 + (40+h)*i + (h >> 1);
     tft.setCursor(x, y);
     tft.print(categories[currentWord]);
 
@@ -135,38 +131,31 @@ void loop() {
     if (rightButton.stateChanged() && rightButton.read() == LOW) {
       if (tempPtr < screenWords-1) {
         tempPtr++;
+        Serial.println("Next one: " + (String)(categoriesTempPtr + tempPtr));
         drawSelectSquare(adjustColor(WHITE), dimensions[tempPtr-1][0], dimensions[tempPtr-1][1], dimensions[tempPtr-1][2], dimensions[tempPtr-1][3], thickness);
         drawSelectSquare(adjustColor(RED), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
+        delay(500);
       } else {
+        Serial.println("Renew screen.");
         tempPtr = 0;
         categoriesTempPtr = (categoriesTempPtr + screenWords) % categoriesCount;
         displayWords();
+        delay(500);
       }
-
     } else if (leftButton.stateChanged() && leftButton.read() == LOW) {
       categoriesPtr = (categoriesTempPtr + tempPtr) % categoriesCount;
       drawSelectSquare(adjustColor(LIGHT_GREEN), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
       teacher_mode = false;
       delay(500);
-
-      // retrieve images from that folder and initiate student mode within that folder
-      getContent("main/" + categories[categoriesPtr], &fileArray, &filesCount);
-      tft.fillScreen(adjustColor(WHITE)); // Clear the screen
-      displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[0]);
-      Serial.println(categories[categoriesPtr] + ", " + fileArray[0]);
-
-      // reset the temporary and image pointers
-      categoriesTempPtr = categoriesPtr, tempPtr = 0, filesPtr = 0;
     }
-
   } else {
-    if (rightButton.stateChanged() && rightButton.read() == LOW) {
+    if (leftButton.stateChanged() && leftButton.read() == LOW) {
       tft.fillScreen(adjustColor(WHITE));
       (++filesPtr) %= filesCount;
       displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr]);
     }
 
-    if (leftButton.stateChanged() && leftButton.read() == LOW) {
+    if (rightButton.stateChanged() && rightButton.read() == LOW) {
       uint16_t color = LIGHT_GREEN;
       drawSquare(color);
       String file_name = "main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr] ; 
@@ -177,21 +166,17 @@ void loop() {
   }
 
   if (teacherButton.stateChanged() && teacherButton.read() == LOW) {
-    tft.fillScreen(adjustColor(WHITE));
-    teacher_mode = !(teacher_mode);
+    teacher_mode = !teacher_mode;
     if (teacher_mode) {
-      categoriesTempPtr = categoriesPtr, tempPtr = 0;
       displayWords();
     } else {
-      displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr]);
+      tft.fillScreen(adjustColor(WHITE));
     }
   }
 }
 
 
 void getContent(String dirname, String** arr, int* count) {
-  *count = 0;
-  *arr = nullptr;
   File dir = SD.open(dirname);
   if(!dir.isDirectory()){
     Serial.println("Trying to open something that is not a folder");
@@ -263,7 +248,7 @@ void drawSquare(uint16_t color) {
 
 void displayImage(String filename) {
   DLabImage img(filename, SD);
-  img.drawImage(tft, SD, INVERT_COLORS);
+  img.drawImage(tft, SD, false);
 }
 
 void sendDFCommand(HardwareSerial &dfPlayerSerial, byte command, int param) {
@@ -294,5 +279,3 @@ void sendDFCommand(HardwareSerial &dfPlayerSerial, byte command, int param) {
         Serial.println(dfPlayerSerial.read(), HEX);
     }
 }
-
-
