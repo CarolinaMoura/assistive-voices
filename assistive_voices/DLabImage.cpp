@@ -11,6 +11,7 @@ File DLabImage::openFile(SDClass& sd) {
   }
   return file;
 }
+
 DLabImage::DLabImage(String path, SDClass &sd)
     : path(path), width(0), height(0), caption("") {
     File file = this->openFile(sd);
@@ -114,3 +115,31 @@ void DLabImage::drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = tr
     tft.setCursor((tft.width() - w) >> 1, this->height + 30 + (h >> 1));
     tft.print(caption);
   }
+
+int DLabImage::getAudioFile() {
+
+    File metadata_file = SD.open( "metadata.txt" ) ;
+    if ( !metadata_file ) {
+        Serial.println("Unable to open metadata.txt") ;
+        return ;
+    }
+
+    int track_number = 1;
+    String line ;
+
+    while ( metadata_file.available() ) {
+        line = metadata_file.readStringUntil( '\n' ) ;
+
+        if ( line.equals( this->caption ) ) {
+
+          metadata_file.close();
+          return track_number ;
+        }
+
+        ++track_number ;
+    }
+
+    Serial.println(" No matching caption found in metadata.txt for '" + this->caption + "'");
+    metadata_file.close();
+    return -1 ;
+}
