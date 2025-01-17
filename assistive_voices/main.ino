@@ -21,15 +21,17 @@ int SCREEN_WIDTH = 320;
 int SCREEN_HEIGHT = 480;
 
 const int leftButtonPin = 8;
-const int rightButtonPin = 9;
-const int teacherButtonPin = 10;
+const int rightButtonPin = 5;
+const int teacherButtonPin = 2;
 
 Debounce leftButton( leftButtonPin, RESISTANCE) ;
 Debounce rightButton( rightButtonPin , RESISTANCE) ;
 Debounce teacherButton( teacherButtonPin , RESISTANCE ) ;
 
 int counter = 0;
-int teacher_mode = false;
+bool teacher_mode = false;
+bool dialogue_mode = false;
+String dialogue_sub = "Bloque1";
 
 String* categories = nullptr;
 int categoriesCount = 0, categoriesPtr = 0, categoriesTempPtr = 0, tempPtr = 0;
@@ -77,11 +79,12 @@ void setup() {
   if(categoriesCount == 0) return;
 
   getContent("main/" + categories[0], &fileArray, &filesCount);
-  displayImage("main/" + categories[0] + "/" + fileArray[0]);
-
-  Serial3.begin( 9600 ) ;
-  // categoriesCount = 9;
-  // displayWords();
+  if (categories[0] == "dialogo") {
+    dialogue_mode = true;
+    displayImage("main/dialogo/bloque1/" + fileArray[0]);
+  } else {
+    displayImage("main/" + categories[0] + "/" + fileArray[0]);
+  }
 }
  
 void displayWords() {
@@ -132,6 +135,8 @@ void drawSelectSquare(uint16_t color, int x1, int y1, int w, int h, uint16_t thi
 
 void loop() {
   if (teacher_mode) {
+    // teacher mode to scroll through categories
+
     if (rightButton.stateChanged() && rightButton.read() == LOW) {
       if (tempPtr < screenWords-1) {
         tempPtr++;
@@ -150,29 +155,54 @@ void loop() {
       delay(500);
 
       // retrieve images from that folder and initiate student mode within that folder
-      getContent("main/" + categories[categoriesPtr], &fileArray, &filesCount);
       tft.fillScreen(adjustColor(WHITE)); // Clear the screen
-      displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[0]);
-      Serial.println(categories[categoriesPtr] + ", " + fileArray[0]);
+      if (categories[categoriesPtr] == "dialogo") {
+        dialogue_mode = true;
+        getContent("main/Dialogo/Bloque1", &fileArray, &filesCount);
+        Serial.println(fileArray[0]);
+        displayImage("main/Dialogo/Bloque1/" + fileArray[0]);
+        dialogue_sub = "Bloque1";
+        Serial.println("dialogo, bloque1, " + fileArray[0]);
+      } else {
+        dialogue_mode = false;
+        getContent("main/" + categories[categoriesPtr], &fileArray, &filesCount);
+        displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[0]);
+        Serial.println(categories[categoriesPtr] + ", " + fileArray[0]);
+      }
 
       // reset the temporary and image pointers
       categoriesTempPtr = categoriesPtr, tempPtr = 0, filesPtr = 0;
     }
 
-  } else {
+  } else if (dialogue_mode) {
+    // dialogue mode within student mode to build sentences by bloques
+
     if (rightButton.stateChanged() && rightButton.read() == LOW) {
-      tft.fillScreen(adjustColor(WHITE));
-      (++filesPtr) %= filesCount;
-      displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr]);
+      getNextImageIn("main/Dialogo/" + dialogue_sub);
     }
 
     if (leftButton.stateChanged() && leftButton.read() == LOW) {
-      uint16_t color = LIGHT_GREEN;
-      drawSquare(color);
-      String file_name = "main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr] ; 
-      DLabImage selected_img( file_name , SD ) ;
-      int track = selected_img.getAudioFile( ) ;
-      sendDFCommand( Serial3 , 0x03 , track ) ;
+      selectImageIn("main/Dialogo/" + dialogue_sub);
+      if (dialogue_sub == "Bloque1") {
+        dialogue_sub = fileArray[filesPtr];
+      } else {
+        dialogue_sub = "Bloque1";
+      }
+      getContent("main/Dialogo/" + dialogue_sub, &fileArray, &filesCount);
+      filesPtr = 0;
+      delay(500);
+      displayImage("main/Dialogo/" + dialogue_sub + "/" + fileArray[0]);
+    }
+
+  } else {
+    // student mode to scroll through the options in a category
+
+    if (rightButton.stateChanged() && rightButton.read() == LOW) {
+      getNextImageIn("main/" + categories[categoriesPtr]);
+    }
+
+    if (leftButton.stateChanged() && leftButton.read() == LOW) {
+      selectImageIn("main/" + categories[categoriesPtr]);
     }
   }
 
@@ -188,6 +218,20 @@ void loop() {
   }
 }
 
+void getNextImageIn(String folder_path) {
+  tft.fillScreen(adjustColor(WHITE));
+  (++filesPtr) %= filesCount;
+  displayImage(folder_path + "/" + fileArray[filesPtr]);
+}
+
+void selectImageIn(String folder_path) {
+  uint16_t color = LIGHT_GREEN;
+  drawSquare(color);
+  String file_name = folder_path + "/" + fileArray[filesPtr] ; 
+  DLabImage selected_img( file_name , SD ) ;
+  int track = selected_img.getAudioFile( ) ;
+  sendDFCommand( Serial3 , 0x03 , track ) ;
+}
 
 void getContent(String dirname, String** arr, int* count) {
   *count = 0;
@@ -294,5 +338,3 @@ void sendDFCommand(HardwareSerial &dfPlayerSerial, byte command, int param) {
         Serial.println(dfPlayerSerial.read(), HEX);
     }
 }
-
-
