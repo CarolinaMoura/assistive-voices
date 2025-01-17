@@ -97,7 +97,7 @@ translations = {
     "subheader": {"en": "Provided by D-Lab Team Mexico", "es": "Proveído por D-Lab Grupo México"},
     "upload_label": {"en": "Upload an image", "es": "Sube una imagen"},
     "dimensions_label": {"en": "Select dimensions", "es": "Selecciona dimensiones"},
-    "caption_label": {"en": "Enter a caption for the file (this text will appear under the image and should not include typical Spanish accents like á, é, í, ó, ú, ñ).", "es": "Introduce un título para la imagen (este texto aparecerá debajo de la imagen y no debe incluir acentos típicos como á, é, í, ó, ú, ñ)."},
+    "caption_label": {"en": "Enter a caption for the file (this text will appear under the image).", "es": "Introduce un título para la imagen (este texto aparecerá debajo de la imagen)."},
     "filename_label": {"en": "Enter a filename for the download file (this is just the file name, but should not contain spaces or typical Spanish accents like á, é, í, ó, ú, ñ. Should be 8 characters or less).", 
                        "es": "Introduce un nombre para el archivo descargable (esto es solo el nombre del archivo, pero no debe contener espacios ni acentos típicos como á, é, í, ó, ú, ñ. Debe tener 8 caracteres o menos)."},
     "filename_error": {"en": "Filename must be 8 characters or fewer.", "es": "El nombre del archivo debe tener 8 caracteres o menos."},
@@ -129,10 +129,6 @@ def main():
     )
 
     caption = st.text_input(translations["caption_label"][st.session_state.language], "")
-
-    if not caption.isascii():
-        non_ascii = [ c for c in caption if not c.isascii() ]
-        st.error(translations["caption_error"][st.session_state.language] + str(non_ascii))
     
     filename = st.text_input(
         translations["filename_label"][st.session_state.language],
@@ -141,7 +137,7 @@ def main():
     if len(filename) > 8:
         st.error(translations["filename_error"][st.session_state.language])
 
-    process_button = st.button(translations["process_button"][st.session_state.language], disabled=not (uploaded_file and len(filename) <= 8 and caption.isascii()))
+    process_button = st.button(translations["process_button"][st.session_state.language], disabled=not (uploaded_file and len(filename) <= 8))
 
     if process_button:
         try:
