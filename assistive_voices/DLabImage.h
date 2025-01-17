@@ -4,7 +4,6 @@
 #include <SD.h>
 #include <MCUFRIEND_kbv.h>
 
-
 /**
  * @class DLabImage
  * @brief Represents an image stored on an SD card and provides functionality to render it on a display.
@@ -15,6 +14,7 @@
 class DLabImage {
 private:
   File openFile(SDClass &sd);
+
 public:
   String path;
   String caption;
@@ -49,6 +49,16 @@ public:
     *                   Be mindful that a large `multFactor` may cause memory overflow.
     */
   void drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = true, uint16_t x = 0, uint16_t y = 0, uint16_t multFactor = 4);
+
+  /**
+    * @brief Plays the audio track corresponding to the image's caption.
+    * 
+    * This function maps the image's caption to a track number in metadata.txt
+    * and returns the integer corresponding to the audio file in the DFPlayer Mini mp3 player.
+    * If the caption is not found in metadata.txt, an error is logged.
+    * 
+    */
+  int getAudioFile();
 };
 
 #endif
