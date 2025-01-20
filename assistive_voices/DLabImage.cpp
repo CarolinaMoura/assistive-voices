@@ -72,7 +72,7 @@ void DLabImage::drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = tr
       for (uint16_t y = 0; y < this->height; y += multFactor) {
         file.read(pixelBuffer, bufferSize << 1);
         if (invertColors) {
-          for (uint16_t i = 0; i < bufferSize; i++)
+          for (uint16_t i = 0; i < (bufferSize << 1); i++)
             pixelBuffer[i] = ~pixelBuffer[i];
         }
 
