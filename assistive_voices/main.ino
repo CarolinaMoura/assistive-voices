@@ -67,6 +67,9 @@ int dimensions[6][4] = {
   {0, 0, 0, 0},
 };
 
+String getCurrentDir() {
+  return "main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr];
+}
 
 void setup() {
   Serial.begin(250000);
@@ -96,7 +99,7 @@ void setup() {
     dialogue_mode = true;
     displayImage("main/conversa/" + dialogue_sub + "/" + fileArray[0]);
   } else {
-    displayImage("main/" + categories[0] + "/" + fileArray[0]);
+    displayImage(getCurrentDir());
   }
 
   // listFiles(SD.open("/"), 0);
