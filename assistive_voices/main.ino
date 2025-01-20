@@ -112,7 +112,7 @@ void displayWords() {
   Serial.println("Display words called");
   tft.fillScreen(adjustColor(WHITE)); // Clear the screen
   tft.setTextColor(adjustColor(0));
-  tft.setFont(&FreeSans12pt7b);
+  // tft.setFont(&FreeSans12pt7b);
   
   // get standard word height
   int16_t std_x=0, std_y=0, std_w=0, std_h = 0;
@@ -346,6 +346,7 @@ void listFiles(File dir, int numTabs) {
 }
 
 void drawSquare(uint16_t color) {
+  color = adjustColor(color);
   tft.fillRect(0, 0, SCREEN_WIDTH, 2*thickness, color);
   tft.fillRect(0, 0 + SCREEN_HEIGHT - 2*thickness, SCREEN_WIDTH, 2*thickness, color);
   tft.fillRect(0, 0, 2*thickness, SCREEN_HEIGHT, color);

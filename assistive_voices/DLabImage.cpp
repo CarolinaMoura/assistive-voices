@@ -1,6 +1,6 @@
 #include "DLabImage.h"
 #include <Arduino.h>
-// #include <Fonts/FreeSans12pt7b.h> 
+#include <Fonts/FreeSans12pt7b.h> 
 
 int DLabImage::levenshtein(String s1, String s2){
     int len1 = s1.length();
@@ -118,9 +118,10 @@ void DLabImage::drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = tr
     // We should think of a cleaner way to
     // implement this.
 
-    tft.setTextSize(2);
+    tft.setTextSize(3);
     tft.setTextColor(invertColors ? ~0 : 0);
     // tft.setFont(&FreeSans12pt7b);
+    // tft.cp437(true);
 
     // Extract the dimensions of the caption
     int16_t x1, y1;
