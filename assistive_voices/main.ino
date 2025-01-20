@@ -6,6 +6,8 @@
 #include "Debounce.h"
 #define INVERT_COLORS false
 
+#define MAX_SIZE_FILEARRAY 100
+#define MAX_SIZE_CATEGORIES 100
 #define WHITE 0xFFFF
 #define BLACK 0x0
 #define RED 0xF800
@@ -14,8 +16,18 @@
 
 MCUFRIEND_kbv tft;
 
-unsigned long lastDebounceTime = 0;  // Timestamp of the last button press
-const unsigned long debounceDelay = 50; 
+extern int *__brkval;
+extern char __bss_end;
+
+int getFreeMemory() {
+  int free_memory;
+  if ((int)__brkval == 0) {
+      free_memory = ((int)&free_memory) - ((int)&__bss_end);
+  } else {
+      free_memory = ((int)&free_memory) - ((int)__brkval);
+  }
+  return free_memory;
+}
 
 int SCREEN_WIDTH = 320;
 int SCREEN_HEIGHT = 480;
@@ -33,7 +45,7 @@ bool teacher_mode = false;
 bool dialogue_mode = false;
 String dialogue_sub = "bloque1";
 
-String* categories = nullptr;
+String categories[MAX_SIZE_CATEGORIES];
 int categoriesCount = 0, categoriesPtr = 0, categoriesTempPtr = 0, tempPtr = 0;
 
 uint16_t adjustColor(uint16_t color) {
@@ -42,7 +54,7 @@ uint16_t adjustColor(uint16_t color) {
 const uint16_t thickness = 5;
 const int screenWords = 6;
 
-String* fileArray = nullptr;
+String fileArray[MAX_SIZE_FILEARRAY];
 int filesCount = 0, filesPtr = 0;
 
 // dimensions array for teacher_mode
@@ -88,6 +100,7 @@ void setup() {
 
   // listFiles(SD.open("/"), 0);
 }
+
  
 void displayWords() {
   // function that displays 6 categories at the time in teacher_mode
@@ -119,12 +132,12 @@ void displayWords() {
     int x = (tft.width() - w) >> 1, y = 45 + (40+std_h)*i + (std_h >> 1);
     tft.setCursor(x, y);
     tft.print(categories[currentWord]);
-
+    
     // save the dimensions
     dimensions[i][0] = x + x1 - 2*thickness, dimensions[i][1] = y + y1 - 2*thickness;
     dimensions[i][2] = w + 4*thickness, dimensions[i][3] = h + 4*thickness;
   }
-
+  
   drawSelectSquare(adjustColor(RED), dimensions[0][0], dimensions[0][1], dimensions[0][2], dimensions[0][3], thickness);
 }
 
@@ -253,46 +266,55 @@ void selectImageIn(String folder_path) {
   sendDFCommand( Serial3 , 0x03 , track ) ;
 }
 
-void getContent(String dirname, String** arr, int* count) {
+void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) {
   *count = 0;
-  *arr = nullptr;
   File dir = SD.open(dirname);
   if(!dir.isDirectory()){
     Serial.println("Trying to open something that is not a folder");
     return;
   }
 
+
+  Serial.print("Memory before reading directory: ");
+  Serial.println(getFreeMemory());
+
   while (true) {
+
+    if  ( *count >= MAX_SIZE_FILEARRAY ) {
+      Serial.println("Too many files in directory. File count exceeds maximum of " + String( MAX_SIZE_FILEARRAY ) );
+      break;  
+    }
+
     File entry = dir.openNextFile();
     if (!entry) {
-        break;
+      break;
     }
 
     String name = entry.name();
 
     if (name[0] == '_') {
-        entry.close();
-        continue;
+      entry.close();
+      continue;
     }
-
-    String* tempArray = new String[*count + 1];
-    for (int i = 0; i < *count; i++) {
-        tempArray[i] = (*arr)[i];
-    }
-    delete[] (*arr);
-    *arr = tempArray;
 
     String fileName = name; 
+    
     for (int i = 0; i < fileName.length(); i++) {
-        fileName[i] = tolower(fileName[i]); 
+      fileName[i] = tolower(fileName[i]); 
     }
+    
     (*arr)[*count] = fileName;
     (*count)++;
+
+    Serial.print("Memory after reading file: ");
+    Serial.println(getFreeMemory());
 
     entry.close();
   }
 
   dir.close();
+  Serial.print("Memory after reading directory: ");
+  Serial.println(getFreeMemory());
 }
 
 void listFiles(File dir, int numTabs) {
@@ -304,7 +326,8 @@ void listFiles(File dir, int numTabs) {
     for (int i = 0; i < numTabs; i++) {
       Serial.print('\t');
     }
-    Serial.print(entry.name());  // Print file name
+    
+    Serial.print(entry.name()); // Print file name
     if (entry.isDirectory()) {
       Serial.println("/");  // Indicate it's a directory
       listFiles(entry, numTabs + 1);  // Recursively list files in the directory
@@ -314,7 +337,7 @@ void listFiles(File dir, int numTabs) {
       Serial.print(entry.size());
       Serial.println(" bytes");
     }
-    entry.close();
+    entry.close();  
   }
 }
 
@@ -331,30 +354,30 @@ void displayImage(String filename) {
 }
 
 void sendDFCommand(HardwareSerial &dfPlayerSerial, byte command, int param) {
-    byte commandData[10];
-    int checkSum;
+  byte commandData[10];
+  int checkSum;
 
-    commandData[0] = 0x7E;
-    commandData[1] = 0xFF;
-    commandData[2] = 0x06;
-    commandData[3] = command;
-    commandData[4] = 0x01; // Feedback enabled
-    commandData[5] = highByte(param);
-    commandData[6] = lowByte(param);
+  commandData[0] = 0x7E;
+  commandData[1] = 0xFF;
+  commandData[2] = 0x06;
+  commandData[3] = command;
+  commandData[4] = 0x01; // Feedback enabled
+  commandData[5] = highByte(param);
+  commandData[6] = lowByte(param);
 
-    checkSum = -(commandData[1] + commandData[2] + commandData[3] + commandData[4] + commandData[5] + commandData[6]);
-    commandData[7] = highByte(checkSum);
-    commandData[8] = lowByte(checkSum);
-    commandData[9] = 0xEF;
+  checkSum = -(commandData[1] + commandData[2] + commandData[3] + commandData[4] + commandData[5] + commandData[6]);
+  commandData[7] = highByte(checkSum);
+  commandData[8] = lowByte(checkSum);
+  commandData[9] = 0xEF;
 
-    for (int i = 0; i < 10; i++) {
-        dfPlayerSerial.write(commandData[i]);
-    }
+  for (int i = 0; i < 10; i++) {
+    dfPlayerSerial.write(commandData[i]);
+  }
 
-    // Debug feedback from DFPlayer
-    delay(100);
-    while (dfPlayerSerial.available()) {
-        Serial.print("DFPlayer Response: ");
-        Serial.println(dfPlayerSerial.read(), HEX);
-    }
+  // Debug feedback from DFPlayer
+  delay(100);
+  while (dfPlayerSerial.available()) {
+    Serial.print("DFPlayer Response: ");
+    Serial.println(dfPlayerSerial.read(), HEX);
+  }
 }
