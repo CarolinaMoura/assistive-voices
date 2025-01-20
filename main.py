@@ -42,7 +42,7 @@ def process_image(image, dimensions: tuple[int, int], caption: str):
 
     typ = 0
     data = data_1
-    if len(data_1) * 0.05 > len(data_2):
+    if len(data_1) * 0.01 > len(data_2):
         typ = 1
         data = data_2
 
