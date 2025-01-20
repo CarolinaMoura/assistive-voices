@@ -1,6 +1,6 @@
 #include "DLabImage.h"
 #include <Arduino.h>
-#include <Fonts/FreeSans12pt7b.h> 
+// #include <Fonts/FreeSans12pt7b.h> 
 
 int DLabImage::levenshtein(String s1, String s2){
     int len1 = s1.length();
@@ -35,7 +35,7 @@ File DLabImage::openFile(SDClass& sd) {
 DLabImage::DLabImage(String path, SDClass &sd)
     : path(path), width(0), height(0), caption("") {
     File file = this->openFile(sd);
-  
+
     // Extract the 4 bytes representing the width and height
     uint8_t dimensions[4];
     if (file.read(dimensions, 4) != 4) {
@@ -58,7 +58,7 @@ DLabImage::DLabImage(String path, SDClass &sd)
     file.close();
   }
 
-void DLabImage::drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = true, uint16_t x = 0, uint16_t y = 0, uint16_t multFactor = 4) {
+void DLabImage::drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = true, uint16_t x = 0, uint16_t y = 0, uint16_t multFactor = 2) {
     File file = this->openFile(sd);
     uint16_t offset = 5 + (this->caption).length();
     file.seek(offset);
@@ -120,7 +120,7 @@ void DLabImage::drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = tr
 
     tft.setTextSize(2);
     tft.setTextColor(invertColors ? ~0 : 0);
-    tft.setFont(&FreeSans12pt7b);
+    // tft.setFont(&FreeSans12pt7b);
 
     // Extract the dimensions of the caption
     int16_t x1, y1;

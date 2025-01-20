@@ -48,7 +48,7 @@ public:
     * @param multFactor The amount of rows to read at once in the buffer. Defaults to 4.
     *                   Be mindful that a large `multFactor` may cause memory overflow.
     */
-  void drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = true, uint16_t x = 0, uint16_t y = 0, uint16_t multFactor = 4);
+  void drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = true, uint16_t x = 0, uint16_t y = 0, uint16_t multFactor = 2);
 
   /**
     * @brief Plays the audio track corresponding to the image's caption.
