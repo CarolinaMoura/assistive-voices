@@ -4,15 +4,7 @@
 #include <Fonts/FreeSans12pt7b.h> 
 #include "DLabImage.h"
 #include "Debounce.h"
-#define INVERT_COLORS true
-
-#define MAX_SIZE_FILEARRAY 100
-#define MAX_SIZE_CATEGORIES 100
-#define WHITE 0xFFFF
-#define BLACK 0x0
-#define RED 0xF800
-#define LIGHT_GREEN 0x2727
-#define RESISTANCE 0
+#include "Config.h"
 
 MCUFRIEND_kbv tft;
 
@@ -28,13 +20,6 @@ int getFreeMemory() {
   }
   return free_memory;
 }
-
-int SCREEN_WIDTH = 320;
-int SCREEN_HEIGHT = 480;
-
-const int leftButtonPin = 8;
-const int rightButtonPin = 5;
-const int teacherButtonPin = 2;
 
 Debounce leftButton( leftButtonPin, RESISTANCE) ;
 Debounce rightButton( rightButtonPin , RESISTANCE) ;
@@ -72,17 +57,17 @@ String getCurrentDir() {
 }
 
 void setup() {
-  Serial.begin(250000);
-  Serial3.begin(9600);
-  const int ID = 0x9486;
-  tft.begin(ID);
-  tft.fillScreen(adjustColor(TFT_WHITE));
+  Serial.begin( SERIAL_BAUDRATE );
+  Serial3.begin( HARDWARE_BAUDRATE );
+
+  tft.begin( TFT_ID ) ;
+  tft.fillScreen(adjustColor( TFT_WHITE ));
 
   leftButton.begin();
   rightButton.begin();
   teacherButton.begin();
 
-  if (!SD.begin(53)) {
+  if (!SD.begin( CHIP_SELECT )) {
     Serial.println("SD card initialization failed!");
     return;
   }
