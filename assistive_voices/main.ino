@@ -386,3 +386,12 @@ void sendDFCommand(HardwareSerial &dfPlayerSerial, byte command, int param) {
     Serial.println(dfPlayerSerial.read(), HEX);
   }
 }
+
+void adjustVolume(HardwareSerial &dfPlayerSerial, byte volume) {
+  // volume ranges from 0 (quietest) to 30 (loudest).
+  
+  if ( volume < 0 )   volume = 0 ; 
+  if ( volume > 30 )  volume = 30 ; 
+
+  sendDFCommand( dfPlayerSerial, 0x06, volume );
+}
