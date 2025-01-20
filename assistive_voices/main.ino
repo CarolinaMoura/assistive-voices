@@ -21,8 +21,8 @@ int SCREEN_WIDTH = 320;
 int SCREEN_HEIGHT = 480;
 
 const int leftButtonPin = 8;
-const int rightButtonPin = 9;
-const int teacherButtonPin = 10;
+const int rightButtonPin = 5;
+const int teacherButtonPin = 2;
 
 Debounce leftButton( leftButtonPin, RESISTANCE) ;
 Debounce rightButton( rightButtonPin , RESISTANCE) ;
