@@ -95,11 +95,12 @@ void displayCategories() {
   if ( TO_DEBUG ) Serial.println("Display words called");
   tft.fillScreen(adjustColor(WHITE)); // Clear the screen
   tft.setTextColor(adjustColor(0));
+  int font_size = 2;
   // tft.setFont(&FreeSans12pt7b);
   
   // get standard word height
   int16_t std_x=0, std_y=0, std_w=0, std_h = 0;
-  tft.setTextSize(2);
+  tft.setTextSize(font_size);
   tft.getTextBounds("word", 0, 0, &std_x, &std_y, &std_w, &std_h);
 
   for (int i = 0; i < screenWords; i++) {
@@ -108,10 +109,10 @@ void displayCategories() {
     uint16_t w, h;
     int currentWord = (categoriesTempPtr + i) % categoriesCount;
 
-    tft.setTextSize(2);
+    tft.setTextSize(font_size);
     tft.getTextBounds(categories[currentWord], 0, 0, &x1, &y1, &w, &h);
     if (w > tft.width() + 5) {
-      tft.setTextSize(1);
+      tft.setTextSize(font_size-1);
       tft.getTextBounds(categories[currentWord], 0, 0, &x1, &y1, &w, &h);
     }
 
