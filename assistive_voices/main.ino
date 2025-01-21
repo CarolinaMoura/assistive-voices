@@ -4,15 +4,7 @@
 #include <Fonts/FreeSans12pt7b.h> 
 #include "DLabImage.h"
 #include "Debounce.h"
-#define INVERT_COLORS true
-
-#define MAX_SIZE_FILEARRAY 100
-#define MAX_SIZE_CATEGORIES 100
-#define WHITE 0xFFFF
-#define BLACK 0x0
-#define RED 0xF800
-#define LIGHT_GREEN 0x2727
-#define RESISTANCE 0
+#include "Config.h"
 
 MCUFRIEND_kbv tft;
 
@@ -29,13 +21,6 @@ int getFreeMemory() {
   return free_memory;
 }
 
-int SCREEN_WIDTH = 320;
-int SCREEN_HEIGHT = 480;
-
-const int leftButtonPin = 8;
-const int rightButtonPin = 5;
-const int teacherButtonPin = 2;
-
 Debounce leftButton( leftButtonPin, RESISTANCE) ;
 Debounce rightButton( rightButtonPin , RESISTANCE) ;
 Debounce teacherButton( teacherButtonPin , RESISTANCE ) ;
@@ -45,16 +30,12 @@ bool teacher_mode = false;
 bool dialogue_mode = false;
 String dialogue_sub = "bloque1";
 
-String categories[MAX_SIZE_CATEGORIES];
 int categoriesCount = 0, categoriesPtr = 0, categoriesTempPtr = 0, tempPtr = 0;
 
 uint16_t adjustColor(uint16_t color) {
     return INVERT_COLORS ? ~color : color;
 }
-const uint16_t thickness = 5;
-const int screenWords = 6;
 
-String fileArray[MAX_SIZE_FILEARRAY];
 int filesCount = 0, filesPtr = 0;
 
 // dimensions array for teacher_mode
@@ -67,49 +48,51 @@ int dimensions[6][4] = {
   {0, 0, 0, 0},
 };
 
+String categories[MAX_SIZE_CATEGORIES];
+String fileArray[MAX_SIZE_FILEARRAY];
+
 String getCurrentDir() {
   return "main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr];
 }
 
 void setup() {
-  Serial.begin(250000);
-  Serial3.begin(9600);
-  const int ID = 0x9486;
-  tft.begin(ID);
-  tft.fillScreen(adjustColor(TFT_WHITE));
+  Serial.begin( SERIAL_BAUDRATE );
+  Serial3.begin( HARDWARE_BAUDRATE );
+
+  tft.begin( 0x9486 ) ;
+  tft.fillScreen(adjustColor( TFT_WHITE ));
 
   leftButton.begin();
   rightButton.begin();
   teacherButton.begin();
 
-  if (!SD.begin(53)) {
+  if (!SD.begin( CHIP_SELECT )) {
     Serial.println("SD card initialization failed!");
     return;
   }
   Serial.println("SD card initialized.");
 
-  tft.setRotation(2);
+  tft.setRotation( 2 );
   
   getContent("main", &categories, &categoriesCount);
 
-  if(categoriesCount == 0) return;
+  if ( categoriesCount == 0 ) return;
 
   getContent("main/" + categories[0], &fileArray, &filesCount);
+
   if (categories[0] == "conversa") {
     dialogue_mode = true;
     displayImage("main/conversa/" + dialogue_sub + "/" + fileArray[0]);
   } else {
     displayImage(getCurrentDir());
   }
-
-  // listFiles(SD.open("/"), 0);
 }
 
  
 void displayCategories() {
   // function that displays 6 categories at the time in teacher_mode
 
-  Serial.println("Display words called");
+  if ( TO_DEBUG ) Serial.println("Display words called");
   tft.fillScreen(adjustColor(WHITE)); // Clear the screen
   tft.setTextColor(adjustColor(0));
   // tft.setFont(&FreeSans12pt7b);
@@ -283,9 +266,11 @@ void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) 
   }
 
 
-  Serial.print("Memory before reading directory: ");
-  Serial.println(getFreeMemory());
-
+  if ( TO_DEBUG ) {
+    Serial.print("Memory before reading directory: ");
+    Serial.println(getFreeMemory());
+  }
+  
   while (true) {
 
     if  ( *count >= MAX_SIZE_FILEARRAY ) {
@@ -314,15 +299,20 @@ void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) 
     (*arr)[*count] = fileName;
     (*count)++;
 
-    Serial.print("Memory after reading file: ");
-    Serial.println(getFreeMemory());
+    if ( TO_DEBUG ) {
+      Serial.print("Memory after reading file: ");
+      Serial.println(getFreeMemory());
+    }
 
     entry.close();
   }
 
   dir.close();
-  Serial.print("Memory after reading directory: ");
-  Serial.println(getFreeMemory());
+
+  if ( TO_DEBUG ) {
+    Serial.print("Memory after reading directory: ");
+    Serial.println(getFreeMemory());
+  }
 }
 
 void listFiles(File dir, int numTabs) {

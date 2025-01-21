@@ -14,7 +14,7 @@ int DLabImage::levenshtein(String s1, String s2){
         for (int j = 1; j <= len2; j++) {
             int cost = (s1[i - 1] == s2[j - 1]) ? 0 : 1;
             matrix[i][j] = fmin(
-                fmin(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1),
+(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1),
                 matrix[i - 1][j - 1] + cost
             );
         }
