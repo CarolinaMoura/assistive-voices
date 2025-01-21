@@ -30,16 +30,12 @@ bool teacher_mode = false;
 bool dialogue_mode = false;
 String dialogue_sub = "bloque1";
 
-String categories[MAX_SIZE_CATEGORIES];
 int categoriesCount = 0, categoriesPtr = 0, categoriesTempPtr = 0, tempPtr = 0;
 
 uint16_t adjustColor(uint16_t color) {
     return INVERT_COLORS ? ~color : color;
 }
-const uint16_t thickness = 5;
-const int screenWords = 6;
 
-String fileArray[MAX_SIZE_FILEARRAY];
 int filesCount = 0, filesPtr = 0;
 
 // dimensions array for teacher_mode
@@ -52,6 +48,9 @@ int dimensions[6][4] = {
   {0, 0, 0, 0},
 };
 
+String categories[MAX_SIZE_CATEGORIES];
+String fileArray[MAX_SIZE_FILEARRAY];
+
 String getCurrentDir() {
   return "main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr];
 }
@@ -60,7 +59,7 @@ void setup() {
   Serial.begin( SERIAL_BAUDRATE );
   Serial3.begin( HARDWARE_BAUDRATE );
 
-  tft.begin( TFT_ID ) ;
+  tft.begin( 0x9486 ) ;
   tft.fillScreen(adjustColor( TFT_WHITE ));
 
   leftButton.begin();
@@ -73,28 +72,27 @@ void setup() {
   }
   Serial.println("SD card initialized.");
 
-  tft.setRotation(2);
+  tft.setRotation( 2 );
   
   getContent("main", &categories, &categoriesCount);
 
-  if(categoriesCount == 0) return;
+  if ( categoriesCount == 0 ) return;
 
   getContent("main/" + categories[0], &fileArray, &filesCount);
+
   if (categories[0] == "conversa") {
     dialogue_mode = true;
     displayImage("main/conversa/" + dialogue_sub + "/" + fileArray[0]);
   } else {
     displayImage(getCurrentDir());
   }
-
-  // listFiles(SD.open("/"), 0);
 }
 
  
 void displayWords() {
   // function that displays 6 categories at the time in teacher_mode
 
-  Serial.println("Display words called");
+  if ( TO_DEBUG ) Serial.println("Display words called");
   tft.fillScreen(adjustColor(WHITE)); // Clear the screen
   tft.setTextColor(adjustColor(0));
   // tft.setFont(&FreeSans12pt7b);
@@ -264,9 +262,11 @@ void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) 
   }
 
 
-  Serial.print("Memory before reading directory: ");
-  Serial.println(getFreeMemory());
-
+  if ( TO_DEBUG ) {
+    Serial.print("Memory before reading directory: ");
+    Serial.println(getFreeMemory());
+  }
+  
   while (true) {
 
     if  ( *count >= MAX_SIZE_FILEARRAY ) {
@@ -295,15 +295,20 @@ void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) 
     (*arr)[*count] = fileName;
     (*count)++;
 
-    Serial.print("Memory after reading file: ");
-    Serial.println(getFreeMemory());
+    if ( TO_DEBUG ) {
+      Serial.print("Memory after reading file: ");
+      Serial.println(getFreeMemory());
+    }
 
     entry.close();
   }
 
   dir.close();
-  Serial.print("Memory after reading directory: ");
-  Serial.println(getFreeMemory());
+
+  if ( TO_DEBUG ) {
+    Serial.print("Memory after reading directory: ");
+    Serial.println(getFreeMemory());
+  }
 }
 
 void listFiles(File dir, int numTabs) {
@@ -371,3 +376,4 @@ void sendDFCommand(HardwareSerial &dfPlayerSerial, byte command, int param) {
     Serial.println(dfPlayerSerial.read(), HEX);
   }
 }
+
