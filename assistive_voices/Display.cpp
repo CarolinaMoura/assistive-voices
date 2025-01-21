@@ -43,10 +43,22 @@ void displayCategories() {
   tft.setTextColor( adjustColor( BLACK ) );
   // tft.setFont(&FreeSans12pt7b);
   
-  // get standard word height
-  int16_t std_x = 0, std_y = 0, std_w = 0, std_h = 0;
-  tft.setTextSize(2);
+  // get font size and standard word height in font
+  int16_t font_size = 0, std_x=0, std_y=0, std_w=0, std_h = 0;
+  while (13*std_h < SCREEN_HEIGHT) {
+    font_size++;
+    tft.setTextSize(font_size);
+    tft.getTextBounds("wordwordwo", 0, 0, &std_x, &std_y, &std_w, &std_h);
+    if (w > SCREEN_WIDTH) {
+      break;
+    }
+    Serial.println(String(font_size) + " " + String(std_h));
+  }
+  font_size--;
+  tft.setTextSize(font_size);
   tft.getTextBounds("word", 0, 0, &std_x, &std_y, &std_w, &std_h);
+  int std_spacing = (SCREEN_HEIGHT - 6*std_h) / 7;
+  Serial.println(String(font_size) + " " + String(std_h) + " " + String(std_spacing));
 
   for (int i = 0; i < screenWords; i++) {
     // Extract the dimensions of the current word
@@ -54,15 +66,16 @@ void displayCategories() {
     uint16_t w, h;
     int currentWord = (categoriesTempPtr + i) % categoriesCount;
 
-    tft.setTextSize(2);
+    tft.setTextSize(font_size);
     tft.getTextBounds(categories[currentWord], 0, 0, &x1, &y1, &w, &h);
     if (w > tft.width() + 5) {
-      tft.setTextSize(1);
+      tft.setTextSize(font_size-1);
       tft.getTextBounds(categories[currentWord], 0, 0, &x1, &y1, &w, &h);
     }
 
     // Set the cursor in the right position
-    int x = (tft.width() - w) >> 1, y = 45 + (40+std_h)*i + (std_h >> 1);
+    int x = (tft.width() - w) >> 1;
+    int y = std_spacing*(i+1) + std_h*i;
     tft.setCursor(x, y);
     tft.print(categories[currentWord]);
     
