@@ -5,21 +5,10 @@
 #include "DLabImage.h"
 #include "Debounce.h"
 #include "Config.h"
+#include "AudioHandler.h"
+#include "MemoryHandler.h"
 
 MCUFRIEND_kbv tft;
-
-extern int *__brkval;
-extern char __bss_end;
-
-int getFreeMemory() {
-  int free_memory;
-  if ((int)__brkval == 0) {
-      free_memory = ((int)&free_memory) - ((int)&__bss_end);
-  } else {
-      free_memory = ((int)&free_memory) - ((int)__brkval);
-  }
-  return free_memory;
-}
 
 Debounce leftButton( leftButtonPin, RESISTANCE) ;
 Debounce rightButton( rightButtonPin , RESISTANCE) ;
@@ -57,7 +46,7 @@ String getCurrentDir() {
 
 void setup() {
   Serial.begin( SERIAL_BAUDRATE );
-  Serial3.begin( HARDWARE_BAUDRATE );
+  initializeAudio() ;
 
   tft.begin( 0x9486 ) ;
   tft.fillScreen(adjustColor( TFT_WHITE ));
@@ -65,13 +54,8 @@ void setup() {
   leftButton.begin();
   rightButton.begin();
   teacherButton.begin();
-
-  if (!SD.begin( CHIP_SELECT )) {
-    Serial.println("SD card initialization failed!");
-    return;
-  }
-  Serial.println("SD card initialized.");
-
+  
+  initializeSD();
   tft.setRotation( 2 );
   
   getContent("main", &categories, &categoriesCount);
@@ -350,42 +334,4 @@ void drawSquare(uint16_t color) {
 void displayImage(String filename) {
   DLabImage img(filename, SD);
   img.drawImage(tft, SD, INVERT_COLORS);
-}
-
-void sendDFCommand(HardwareSerial &dfPlayerSerial, byte command, int param) {
-  byte commandData[10];
-  int checkSum;
-
-  commandData[0] = 0x7E;
-  commandData[1] = 0xFF;
-  commandData[2] = 0x06;
-  commandData[3] = command;
-  commandData[4] = 0x01; // Feedback enabled
-  commandData[5] = highByte(param);
-  commandData[6] = lowByte(param);
-
-  checkSum = -(commandData[1] + commandData[2] + commandData[3] + commandData[4] + commandData[5] + commandData[6]);
-  commandData[7] = highByte(checkSum);
-  commandData[8] = lowByte(checkSum);
-  commandData[9] = 0xEF;
-
-  for (int i = 0; i < 10; i++) {
-    dfPlayerSerial.write(commandData[i]);
-  }
-
-  // Debug feedback from DFPlayer
-  delay(100);
-  while (dfPlayerSerial.available()) {
-    Serial.print("DFPlayer Response: ");
-    Serial.println(dfPlayerSerial.read(), HEX);
-  }
-}
-
-void adjustVolume(HardwareSerial &dfPlayerSerial, byte volume) {
-  // volume ranges from 0 (quietest) to 30 (loudest).
-  
-  if ( volume < 0 )   volume = 0 ; 
-  if ( volume > 30 )  volume = 30 ; 
-
-  sendDFCommand( dfPlayerSerial, 0x06, volume );
 }
