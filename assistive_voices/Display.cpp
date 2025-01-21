@@ -2,8 +2,8 @@
 #include "Config.h"
 #include "DLabImage.h"
 #include <Adafruit_GFX.h>
-#include <Fonts/FreeSans12pt7b.h>
 #include "AudioHandler.h"
+#include "CustomFont12pt7b.h"
 
 // Global Display Object
 MCUFRIEND_kbv tft;
@@ -27,6 +27,18 @@ void initializeDisplay() {
   tft.begin( TFT_ID );
   tft.setRotation( 2 );
   tft.fillScreen(adjustColor( TFT_WHITE ));
+
+  tft.setTextColor(adjustColor(TFT_BLACK)); // Black text with white background
+  tft.setFont(&rroboto12pt8b);         // Use the custom font
+  tft.setTextSize(2);
+  tft.setCursor(50, 80);                  // Set the cursor position
+
+  // Display custom text
+  /*
+  tft.println("\xe1");     // Display a string with special characters
+  tft.println("c\xf3mo"); // Display accented character
+  tft.println("\xf1"); // Display accented character
+  */
 }
 
 void displayImage(const String& filename) {
