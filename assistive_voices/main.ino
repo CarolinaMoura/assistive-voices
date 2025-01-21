@@ -256,7 +256,6 @@ void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) 
     return;
   }
 
-
   if ( TO_DEBUG ) {
     Serial.print("Memory before reading directory: ");
     Serial.println(getFreeMemory());
@@ -276,7 +275,7 @@ void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) 
 
     String name = entry.name();
 
-    if (name[0] == '_') {
+    if (name[0] == '_' || name == "NAME.TXT") {
       entry.close();
       continue;
     }
