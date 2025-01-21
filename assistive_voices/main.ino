@@ -1,13 +1,11 @@
 #include <SD.h>
 #include "Adafruit_GFX.h"
 #include <MCUFRIEND_kbv.h>
-#include <Fonts/FreeSans12pt7b.h> 
 #include "DLabImage.h"
 #include "Debounce.h"
 #include "AudioHandler.h"
 #include "MemoryHandler.h"
 #include "Display.h"
-
 
 Debounce leftButton( leftButtonPin, RESISTANCE) ;
 Debounce rightButton( rightButtonPin , RESISTANCE) ;
