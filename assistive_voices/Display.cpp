@@ -61,7 +61,7 @@ void displayCategories() {
     font_size++;
     tft.setTextSize(font_size);
     tft.getTextBounds("wordwordwo", 0, 0, &std_x, &std_y, &std_w, &std_h);
-    if (w > SCREEN_WIDTH) {
+    if (std_w > SCREEN_WIDTH) {
       break;
     }
     Serial.println(String(font_size) + " " + String(std_h));
@@ -78,18 +78,20 @@ void displayCategories() {
     uint16_t w, h;
     int currentWord = (categoriesTempPtr + i) % categoriesCount;
 
+    String category_name = getCategoryName(categories[currentWord]);
+
     tft.setTextSize(font_size);
-    tft.getTextBounds(categories[currentWord], 0, 0, &x1, &y1, &w, &h);
+    tft.getTextBounds(category_name, 0, 0, &x1, &y1, &w, &h);
     if (w > tft.width() + 5) {
       tft.setTextSize(font_size-1);
-      tft.getTextBounds(categories[currentWord], 0, 0, &x1, &y1, &w, &h);
+      tft.getTextBounds(category_name, 0, 0, &x1, &y1, &w, &h);
     }
 
     // Set the cursor in the right position
     int x = (tft.width() - w) >> 1;
     int y = std_spacing*(i+1) + std_h*i;
     tft.setCursor(x, y);
-    tft.print(categories[currentWord]);
+    tft.print(category_name);
     
     // save the dimensions
     dimensions[i][0] = x + x1 - 2*thickness, dimensions[i][1] = y + y1 - 2*thickness;

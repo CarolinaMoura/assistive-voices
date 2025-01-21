@@ -18,7 +18,7 @@ void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) 
   *count = 0;
   File dir = SD.open(dirname);
   if(!dir.isDirectory()){
-    Serial.println("Trying to open something that is not a folder");
+    Serial.println("Trying to open something that is not a folder: " + dirname);
     return;
   }
 
@@ -42,7 +42,7 @@ void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) 
 
     String name = entry.name();
 
-    if (name[0] == '_') {
+    if (name[0] == '_' || name == "NAME.TXT") {
       entry.close();
       continue;
     }
@@ -95,4 +95,10 @@ void listFiles(File dir, int numTabs) {
     }
     entry.close();  
   }
+}
+
+String getCategoryName(String category) {
+  File nameFile = SD.open("main/" + category + "/name.txt");
+  if(!nameFile) return category;
+  return nameFile.readStringUntil( '\n' ) ;
 }
