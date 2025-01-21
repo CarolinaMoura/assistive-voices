@@ -41,4 +41,9 @@ constexpr int screenWords = 6;
 extern String categories[MAX_SIZE_CATEGORIES];
 extern String fileArray[MAX_SIZE_FILEARRAY];
 
+extern int categoriesCount, categoriesPtr, categoriesTempPtr, tempPtr;
+extern int filesCount, filesPtr;
+extern bool dialogue_mode , teacher_mode ;
+extern String dialogue_sub ;
+
 #endif // CONFIG_H
