@@ -106,7 +106,7 @@ void setup() {
 }
 
  
-void displayWords() {
+void displayCategories() {
   // function that displays 6 categories at the time in teacher_mode
 
   Serial.println("Display words called");
@@ -145,6 +145,49 @@ void displayWords() {
   drawSelectSquare(adjustColor(RED), dimensions[0][0], dimensions[0][1], dimensions[0][2], dimensions[0][3], thickness);
 }
 
+void scrollCategories() {
+  // scrolling through categories during teacher mode
+  if (tempPtr < screenWords-1) {
+    // scroll downwards in screen
+    tempPtr++;
+    drawSelectSquare(adjustColor(WHITE), dimensions[tempPtr-1][0], dimensions[tempPtr-1][1], dimensions[tempPtr-1][2], dimensions[tempPtr-1][3], thickness);
+    drawSelectSquare(adjustColor(RED), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
+  } else {
+    // renew categories in screen
+    tempPtr = 0;
+    categoriesTempPtr = (categoriesTempPtr + screenWords) % categoriesCount;
+    displayCategories();
+  }
+}
+
+void selectCategory() {
+  // selecting a category during teacher mode
+  categoriesPtr = (categoriesTempPtr + tempPtr) % categoriesCount;
+  drawSelectSquare(adjustColor(LIGHT_GREEN), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
+  teacher_mode = false;
+  delay(500);
+
+  // retrieve images from that folder and initiate student mode within that folder
+  tft.fillScreen(adjustColor(WHITE)); // Clear the screen
+
+  if (categories[categoriesPtr] == "conversa") {
+    dialogue_mode = true;
+    dialogue_sub = "bloque1";
+    getContent("main/" + categories[categoriesPtr] + "/" + dialogue_sub, &fileArray, &filesCount);
+    Serial.println(fileArray[0]);
+    displayImage("main/" + categories[categoriesPtr] + "/" + dialogue_sub + "/" + fileArray[0]);
+
+  } else {
+    dialogue_mode = false;
+    getContent("main/" + categories[categoriesPtr], &fileArray, &filesCount);
+    displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[0]);
+    Serial.println(categories[categoriesPtr] + ", " + fileArray[0]);
+  }
+
+  // reset the temporary and image pointers
+  categoriesTempPtr = categoriesPtr, tempPtr = 0, filesPtr = 0;
+}
+
 void drawSelectSquare(uint16_t color, int x1, int y1, int w, int h, uint16_t thickness) {
   tft.fillRect(x1, y1, w, thickness, color);
   tft.fillRect(x1, y1 + h - thickness, w, thickness, color);
@@ -155,79 +198,36 @@ void drawSelectSquare(uint16_t color, int x1, int y1, int w, int h, uint16_t thi
 void loop() {
   if (teacher_mode) {
     // teacher mode to scroll through categories
-
     if (rightButton.stateChanged() && rightButton.read() == LOW) {
-      // scrolling through categories
-
-      if (tempPtr < screenWords-1) {
-        // scroll downwards in screen
-        tempPtr++;
-        drawSelectSquare(adjustColor(WHITE), dimensions[tempPtr-1][0], dimensions[tempPtr-1][1], dimensions[tempPtr-1][2], dimensions[tempPtr-1][3], thickness);
-        drawSelectSquare(adjustColor(RED), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
-      } else {
-        // renew categories in screen
-        tempPtr = 0;
-        categoriesTempPtr = (categoriesTempPtr + screenWords) % categoriesCount;
-        displayWords();
-      }
-
+      scrollCategories();
     } else if (leftButton.stateChanged() && leftButton.read() == LOW) {
-      // selecting a category
-      categoriesPtr = (categoriesTempPtr + tempPtr) % categoriesCount;
-      drawSelectSquare(adjustColor(LIGHT_GREEN), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
-      teacher_mode = false;
-      delay(500);
-
-      // retrieve images from that folder and initiate student mode within that folder
-      tft.fillScreen(adjustColor(WHITE)); // Clear the screen
-  
-      if (categories[categoriesPtr] == "conversa") {
-        dialogue_mode = true;
-        dialogue_sub = "bloque1";
-        getContent("main/" + categories[categoriesPtr] + "/" + dialogue_sub, &fileArray, &filesCount);
-        Serial.println(fileArray[0]);
-        displayImage("main/" + categories[categoriesPtr] + "/" + dialogue_sub + "/" + fileArray[0]);
-
-      } else {
-        dialogue_mode = false;
-        getContent("main/" + categories[categoriesPtr], &fileArray, &filesCount);
-        displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[0]);
-        Serial.println(categories[categoriesPtr] + ", " + fileArray[0]);
-      }
-
-      // reset the temporary and image pointers
-      categoriesTempPtr = categoriesPtr, tempPtr = 0, filesPtr = 0;
+      selectCategory();
     }
 
   } else if (dialogue_mode) {
     // dialogue mode within student mode to build sentences by blocks
-
     if (rightButton.stateChanged() && rightButton.read() == LOW) {
+      // scroll image
       getNextImageIn("main/" + categories[categoriesPtr] + "/" + dialogue_sub);
     }
-
     if (leftButton.stateChanged() && leftButton.read() == LOW) {
+      // select image
       selectImageIn("main/" + categories[categoriesPtr] + "/" + dialogue_sub);
-  
       // switch subfolders within the dialogue mode
       if (dialogue_sub == "bloque1") {
         dialogue_sub = fileArray[filesPtr];
       } else {
         dialogue_sub = "bloque1";
       }
-
       getContent("main/" + categories[categoriesPtr] + "/" + dialogue_sub, &fileArray, &filesCount);
       filesPtr = -1;  // getNextImage will increase it by 1 when called
-      delay(500);
     }
 
   } else {
     // student mode to scroll through the options in a category
-
     if (rightButton.stateChanged() && rightButton.read() == LOW) {
       getNextImageIn("main/" + categories[categoriesPtr]);
     }
-
     if (leftButton.stateChanged() && leftButton.read() == LOW) {
       selectImageIn("main/" + categories[categoriesPtr]);
     }
@@ -235,23 +235,7 @@ void loop() {
 
   if (teacherButton.stateChanged() && teacherButton.read() == LOW) {
     // activate or deactivate teacher mode
-
-    tft.fillScreen(adjustColor(WHITE));
-    teacher_mode = !(teacher_mode);
-
-    if (teacher_mode) {
-      //start teacher mode
-      categoriesTempPtr = categoriesPtr, tempPtr = 0;
-      displayWords();
-
-    } else {
-      // return to previous category and image, as no new one selected
-      if (dialogue_mode) {
-        displayImage("main/" + categories[categoriesPtr] + "/" + dialogue_sub + "/" + fileArray[filesPtr]);
-      } else {
-        displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr]);
-      }
-    }
+    switchTeacherMode();
   }
 }
 
@@ -268,6 +252,26 @@ void selectImageIn(String folder_path) {
   DLabImage selected_img( file_name , SD ) ;
   int track = selected_img.getAudioFile( ) ;
   sendDFCommand( Serial3 , 0x03 , track ) ;
+}
+
+void switchTeacherMode() {
+  // activate or deactivate teacher mode
+  tft.fillScreen(adjustColor(WHITE));
+  teacher_mode = !(teacher_mode);
+
+  if (teacher_mode) {
+    //start teacher mode
+    categoriesTempPtr = categoriesPtr, tempPtr = 0;
+    displayCategories();
+
+  } else {
+    // return to previous category and image, as no new one selected
+    if (dialogue_mode) {
+      displayImage("main/" + categories[categoriesPtr] + "/" + dialogue_sub + "/" + fileArray[filesPtr]);
+    } else {
+      displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr]);
+    }
+  }
 }
 
 void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) {
