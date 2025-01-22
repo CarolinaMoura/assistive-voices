@@ -33,14 +33,6 @@ void initializeDisplay() {
   tft.setTextSize(2);
   tft.setCursor(50, 80);                  // Set the cursor position
 
-  // Display custom text
-  /*
-  tft.println((unsigned char)"é");     // Display a string with special characters
-  tft.println("c\xf3mo"); // Display accented character
-  tft.println("\xf1"); // Display accented character
-  delay(100000);
-  */
-  
 }
 
 void displayImage(const String& filename) {
