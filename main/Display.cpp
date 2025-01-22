@@ -1,7 +1,6 @@
-#include "Display.h"
-#include "Config.h"
-#include "DLabImage.h"
 #include <Adafruit_GFX.h>
+#include "Display.h"
+#include "DLabImage.h"
 #include "AudioHandler.h"
 #include "CustomFont12pt7b.h"
 

@@ -1,7 +1,6 @@
 #include "FileUtils.h"
 #include "MemoryHandler.h"
 
-
 // arrays
 String categories[MAX_SIZE_CATEGORIES];
 String fileArray[MAX_SIZE_FILEARRAY];
@@ -108,8 +107,11 @@ String convertSpecialCharacters(String input) {
 
   for (int i = 0; i < input.length(); i++) {
     unsigned char c = input[i];  // Treat the character as unsigned
-    Serial.print("c: ");
-    Serial.println(c);
+
+    if ( TO_DEBUG ) {
+      Serial.print("c: ");
+      Serial.println(c);
+    }
 
     switch (c) {
       // map from extended ascii to ascii encoding for Spanish special characters.
@@ -120,6 +122,8 @@ String convertSpecialCharacters(String input) {
       case 0xa3: output += "\xfa"; break;  // ú -> 0xFA
       case 0xa4: output += "\xf1"; break;  // ñ -> 0xF1
       case 0x81: output += "\xfc"; break;  // ü -> 0xFC
+      case 0xa5: output += "\xbf"; break;  // ¿ -> 0xBF
+      case 0xa6: output += "\xa1"; break;  // ¡ -> 0xA1
       default: output += input[i];  // Keep other characters as is
     }
   }
