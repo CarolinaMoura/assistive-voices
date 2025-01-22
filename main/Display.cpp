@@ -67,6 +67,7 @@ void displayCategories() {
     tft.getTextBounds(category_name, 0, 0, &x1, &y1, &w, &h);
     if (w > tft.width() - 5) {
       tft.setTextSize(font_size-1);
+      Serial.println(font_size-1);
       tft.getTextBounds(category_name, 0, 0, &x1, &y1, &w, &h);
     }
 
