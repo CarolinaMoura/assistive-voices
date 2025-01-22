@@ -29,17 +29,6 @@ void setup()
     return;
 
   displayCategories();
-
-  // getContent("main/" + categories[0], &fileArray, &filesCount);
-
-  // if (categories[0] == "conversa") {
-  //   dialogue_mode = true;
-  //   displayImage("main/conversa/" + dialogue_sub + "/" + fileArray[0]);
-  // } else {
-  //   displayImage(getCurrentDir());
-  // }
-
-  // listFiles(SD.open("/main/"), 0);
 }
 
 void loop()
