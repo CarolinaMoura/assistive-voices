@@ -23,7 +23,7 @@ void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) 
 
 
   if ( TO_DEBUG ) {
-    Serial.print("Memory before reading directory: ");
+    Serial.print(F("Memory before reading directory: "));
     Serial.println(getFreeMemory());
   }
   
@@ -56,7 +56,7 @@ void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) 
     (*count)++;
 
     if ( TO_DEBUG ) {
-      Serial.print("Memory after reading file: ");
+      Serial.print(F("Memory after reading file: "));
       Serial.println(getFreeMemory());
     }
 
@@ -66,7 +66,7 @@ void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) 
   dir.close();
 
   if ( TO_DEBUG ) {
-    Serial.print("Memory after reading directory: ");
+    Serial.print(F("Memory after reading directory: "));
     Serial.println(getFreeMemory());
   }
 }
@@ -84,13 +84,13 @@ void listFiles(File dir, int numTabs) {
     
     Serial.print(entry.name()); // Print file name
     if (entry.isDirectory()) {
-      Serial.println("/");  // Indicate it's a directory
+      Serial.println(F("/"));  // Indicate it's a directory
       listFiles(entry, numTabs + 1);  // Recursively list files in the directory
     } else {
       // Files have a size
-      Serial.print("\t");
+      Serial.print(F("\t"));
       Serial.print(entry.size());
-      Serial.println(" bytes");
+      Serial.println(F(" bytes"));
     }
     entry.close();  
   }
@@ -109,8 +109,8 @@ String convertSpecialCharacters(String input) {
     unsigned char c = input[i];  // Treat the character as unsigned
 
     if ( TO_DEBUG ) {
-      Serial.print("c: ");
-      Serial.println(c);
+      //Serial.print(F("c: "));
+      //Serial.println(c);
     }
 
     switch (c) {

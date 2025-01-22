@@ -13,7 +13,7 @@ Debounce::Debounce(uint8_t pin, int resistance)
             delay = HARD ; break ;
     } ;
 
-    Serial.print("delay: ") ;
+    Serial.print(F("delay: ")) ;
     Serial.print( delay ) ;
 }
 
