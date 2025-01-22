@@ -117,8 +117,8 @@ void DLabImage::drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = tr
     // The next part is gross...
     // We should think of a cleaner way to
     // implement this.
-
-    tft.setTextSize(3);
+    int16_t font_size = 2;
+    tft.setTextSize(font_size);
     tft.setTextColor(invertColors ? ~0 : 0);
     // tft.setFont(&FreeSans12pt7b);
     // tft.cp437(true);
@@ -127,8 +127,8 @@ void DLabImage::drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = tr
     int16_t x1, y1;
     uint16_t w, h;
     tft.getTextBounds(caption, 0, 0, &x1, &y1, &w, &h);
-    if (w > tft.width() + 5) {
-      tft.setTextSize(1);
+    if (w > tft.width() - 5) {
+      tft.setTextSize(font_size - 1);
       tft.getTextBounds(caption, 0, 0, &x1, &y1, &w, &h);
     }
 
