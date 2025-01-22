@@ -2,7 +2,6 @@
 #include "Display.h"
 #include "DLabImage.h"
 #include "AudioHandler.h"
-#include "CustomFont12pt7b.h"
 
 // Global Display Object
 MCUFRIEND_kbv tft;
