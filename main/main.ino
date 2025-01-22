@@ -47,6 +47,7 @@ void loop()
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       is_first_teacher_mode = false;
       selectCategory();
 =======
@@ -55,6 +56,9 @@ void loop()
 =======
       selectCategory(&categories, categoriesCount, categoriesPtr, categoriesTempPtr, categoriesScreenPtr);
 >>>>>>> 5b71bfb (send indices by reference and finish updating teacher_mode functions)
+=======
+      selectCategory(&categories, categoriesCount, categoriesPtr, categoriesTempPtr, categoriesScreenPtr);
+>>>>>>> b73d474d99d14df71e7958058d4ed97b583b1370
     }
 
   }
