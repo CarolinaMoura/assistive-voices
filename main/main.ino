@@ -1,11 +1,10 @@
 #include <SD.h>
-#include "Adafruit_GFX.h"
 #include <MCUFRIEND_kbv.h>
-#include "DLabImage.h"
+#include "Adafruit_GFX.h"
 #include "Debounce.h"
-#include "AudioHandler.h"
-#include "MemoryHandler.h"
 #include "Display.h"
+#include "MemoryHandler.h"
+#include "AudioHandler.h"
 
 Debounce leftButton(leftButtonPin, RESISTANCE);
 Debounce rightButton(rightButtonPin, RESISTANCE);
@@ -26,8 +25,7 @@ void setup()
 
   getContent("main", &categories, &categoriesCount);
 
-  if (categoriesCount == 0)
-    return;
+  if (categoriesCount == 0) return;
 
   displayCategories();
 }
@@ -41,11 +39,14 @@ void loop()
     {
       scrollCategories();
     }
+
     else if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
       selectCategory();
     }
+
   }
+  
   else if (dialogue_mode)
   {
     // dialogue mode within student mode to build sentences by blocks

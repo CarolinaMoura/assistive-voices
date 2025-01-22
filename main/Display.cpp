@@ -1,7 +1,6 @@
-#include "Display.h"
-#include "Config.h"
-#include "DLabImage.h"
 #include <Adafruit_GFX.h>
+#include "Display.h"
+#include "DLabImage.h"
 #include "AudioHandler.h"
 #include "CustomFont12pt7b.h"
 
@@ -50,22 +49,12 @@ void displayCategories() {
   // tft.setFont(&FreeSans12pt7b);
   
   // get font size and standard word height in font
-  int16_t font_size = 0, std_x=0, std_y=0, std_w=0, std_h = 0;
-  while (13*std_h < SCREEN_HEIGHT) {
-    font_size++;
-    tft.setTextSize(font_size);
-    tft.getTextBounds("wordwordwo", 0, 0, &std_x, &std_y, &std_w, &std_h);
-    if (std_w > SCREEN_WIDTH) {
-      break;
-    }
-    Serial.println(String(font_size) + " " + String(std_h));
-  }
-  font_size--;
+  int16_t font_size = 2, std_x=0, std_y=0, std_w=0, std_h = 0;
   tft.setTextSize(font_size);
   tft.getTextBounds("word", 0, 0, &std_x, &std_y, &std_w, &std_h);
   int std_spacing = (SCREEN_HEIGHT - 6*std_h) / 7;
-  Serial.println(String(font_size) + " " + String(std_h) + " " + String(std_spacing));
 
+  int x = 0, y = 0;
   for (int i = 0; i < screenWords; i++) {
     // Extract the dimensions of the current word
     int16_t x1, y1;
@@ -76,14 +65,15 @@ void displayCategories() {
 
     tft.setTextSize(font_size);
     tft.getTextBounds(category_name, 0, 0, &x1, &y1, &w, &h);
-    if (w > tft.width() + 5) {
+    if (w > tft.width() - 5) {
       tft.setTextSize(font_size-1);
+      Serial.println(font_size-1);
       tft.getTextBounds(category_name, 0, 0, &x1, &y1, &w, &h);
     }
 
     // Set the cursor in the right position
-    int x = (tft.width() - w) >> 1;
-    int y = std_spacing*(i+1) + std_h*i;
+    x = (tft.width() - w) >> 1;
+    y += std_spacing + std_h;
     tft.setCursor(x, y);
     tft.print(convertSpecialCharacters(category_name));
     
