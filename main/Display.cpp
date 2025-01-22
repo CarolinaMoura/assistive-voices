@@ -42,7 +42,7 @@ void displayImage(const String& filename) {
 void displayCategories() {
   // function that displays 6 categories at the time in teacher_mode
 
-  if ( TO_DEBUG ) Serial.println("Display words called");
+  if ( TO_DEBUG ) Serial.println(F("Display words called"));
   tft.fillScreen( adjustColor( WHITE ) ); // Clear the screen
   tft.setTextColor( adjustColor( BLACK ) );
   // tft.setFont(&FreeSans12pt7b);

@@ -141,7 +141,7 @@ int DLabImage::getAudioFile() {
 
     File metadata_file = SD.open( "metadata.txt" ) ;
     if ( !metadata_file ) {
-        Serial.println("Unable to open metadata.txt") ;
+        Serial.println(F("Unable to open metadata.txt")) ;
         return ;
     }
 
