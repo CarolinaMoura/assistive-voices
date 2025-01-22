@@ -1,6 +1,7 @@
 #include "DLabImage.h"
 #include <Arduino.h>
 #include <Fonts/FreeSans12pt7b.h> 
+#include "FileUtils.h"
 
 int DLabImage::levenshtein(String s1, String s2){
     int len1 = s1.length();
@@ -134,7 +135,7 @@ void DLabImage::drawImage(MCUFRIEND_kbv tft, SDClass &sd, bool invertColors = tr
 
     // Set the cursor in the right position
     tft.setCursor((tft.width() - w) >> 1, this->height + 30 + (h >> 1));
-    tft.print(caption);
+    tft.println(convertSpecialCharacters(caption));
   }
 
 int DLabImage::getAudioFile() {

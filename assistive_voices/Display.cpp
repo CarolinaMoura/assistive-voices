@@ -35,10 +35,12 @@ void initializeDisplay() {
 
   // Display custom text
   /*
-  tft.println("\xe1");     // Display a string with special characters
+  tft.println((unsigned char)"é");     // Display a string with special characters
   tft.println("c\xf3mo"); // Display accented character
   tft.println("\xf1"); // Display accented character
+  delay(100000);
   */
+  
 }
 
 void displayImage(const String& filename) {
@@ -76,7 +78,7 @@ void displayCategories() {
     // Set the cursor in the right position
     int x = (tft.width() - w) >> 1, y = 45 + (40+std_h)*i + (std_h >> 1);
     tft.setCursor(x, y);
-    tft.print(categories[currentWord]);
+    tft.println(convertSpecialCharacters(categories[currentWord]));
     
     // save the dimensions
     dimensions[i][0] = x + x1 - 2*thickness, dimensions[i][1] = y + y1 - 2*thickness;

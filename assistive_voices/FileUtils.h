@@ -8,5 +8,6 @@
 String getCurrentDir() ;
 void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) ;
 void listFiles(File dir, int numTabs) ;
+String convertSpecialCharacters(String input) ;
 
 #endif // FILE_UTILS_H
