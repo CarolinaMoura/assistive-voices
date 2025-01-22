@@ -10,6 +10,8 @@ Debounce leftButton(leftButtonPin, RESISTANCE);
 Debounce rightButton(rightButtonPin, RESISTANCE);
 Debounce teacherButton(teacherButtonPin, RESISTANCE);
 
+bool is_first_teacher_mode = true;
+
 void setup()
 {
   Serial.begin(SERIAL_BAUDRATE);
@@ -42,6 +44,7 @@ void loop()
 
     else if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
+      is_first_teacher_mode = false;
       selectCategory();
     }
 
@@ -88,6 +91,9 @@ void loop()
   if (teacherButton.stateChanged() && teacherButton.read() == LOW)
   {
     // activate or deactivate teacher mode
+    if(is_first_teacher_mode) {
+      teacher_mode = false;
+    }
     switchTeacherMode();
   }
 }
