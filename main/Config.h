@@ -1,7 +1,9 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <Arduino.h> 
+#include <Arduino.h>
+#include <Adafruit_GFX.h>
+#include "CustomFont12pt7b.h"
 
 // TFT color configuration
 constexpr bool INVERT_COLORS = true;
@@ -23,6 +25,7 @@ constexpr uint16_t WHITE = 0xFFFF;
 constexpr uint16_t BLACK = 0x0000;
 constexpr uint16_t RED = 0xF800;
 constexpr uint16_t LIGHT_GREEN = 0x2727;
+const GFXfont ACTIVE_FONT PROGMEM = rroboto12pt8b;
 
 // Button pins
 constexpr int leftButtonPin = 8;
