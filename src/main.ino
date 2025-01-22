@@ -1,11 +1,11 @@
 #include <SD.h>
-#include "Adafruit_GFX.h"
 #include <MCUFRIEND_kbv.h>
-#include "DLabImage.h"
+#include "Adafruit_GFX.h"
 #include "Debounce.h"
-#include "AudioHandler.h"
-#include "MemoryHandler.h"
 #include "Display.h"
+#include "MemoryHandler.h"
+#include "AudioHandler.h"
+
 Debounce leftButton(leftButtonPin, RESISTANCE);
 Debounce rightButton(rightButtonPin, RESISTANCE);
 Debounce teacherButton(teacherButtonPin, RESISTANCE);
@@ -25,21 +25,9 @@ void setup()
 
   getContent("main", &categories, &categoriesCount);
 
-  if (categoriesCount == 0)
-    return;
+  if (categoriesCount == 0) return;
 
   displayCategories();
-
-  // getContent("main/" + categories[0], &fileArray, &filesCount);
-
-  // if (categories[0] == "conversa") {
-  //   dialogue_mode = true;
-  //   displayImage("main/conversa/" + dialogue_sub + "/" + fileArray[0]);
-  // } else {
-  //   displayImage(getCurrentDir());
-  // }
-
-  // listFiles(SD.open("/main/"), 0);
 }
 
 void loop()
@@ -51,11 +39,14 @@ void loop()
     {
       scrollCategories();
     }
+
     else if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
       selectCategory();
     }
+
   }
+  
   else if (dialogue_mode)
   {
     // dialogue mode within student mode to build sentences by blocks
