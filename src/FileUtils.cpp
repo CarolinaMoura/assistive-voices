@@ -100,7 +100,7 @@ void listFiles(File dir, int numTabs) {
 String getCategoryName(String category) {
   File nameFile = SD.open("main/" + category + "/name.txt");
   if(!nameFile) return category;
-  return nameFile.readStringUntil( '\n' ) ;
+  return convertSpecialCharacters(nameFile.readStringUntil( '\n' ) );
 }
 
 String convertSpecialCharacters(String input) {
