@@ -102,3 +102,27 @@ String getCategoryName(String category) {
   if(!nameFile) return category;
   return nameFile.readStringUntil( '\n' ) ;
 }
+
+String convertSpecialCharacters(String input) {
+  String output = "";
+
+  for (int i = 0; i < input.length(); i++) {
+    unsigned char c = input[i];  // Treat the character as unsigned
+    Serial.print("c: ");
+    Serial.println(c);
+
+    switch (c) {
+      // map from extended ascii to ascii encoding for Spanish special characters.
+      case 0xa0: output += "\xe1"; break;  // á -> 0xE1
+      case 0x82: output += "\xe9"; break;  // é -> 0xE9
+      case 0xa1: output += "\xed"; break;  // í -> 0xED
+      case 0xa2: output += "\xf3"; break;  // ó -> 0xF3
+      case 0xa3: output += "\xfa"; break;  // ú -> 0xFA
+      case 0xa4: output += "\xf1"; break;  // ñ -> 0xF1
+      case 0x81: output += "\xfc"; break;  // ü -> 0xFC
+      default: output += input[i];  // Keep other characters as is
+    }
+  }
+
+  return output;
+}
