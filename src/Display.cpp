@@ -19,13 +19,13 @@ int dimensions[6][4] = {
 };
 
 // global variables
-bool teacher_mode = false;
+bool teacher_mode = true;
 bool dialogue_mode = false;
 String dialogue_sub = "bloque1";
 
 void initializeDisplay() {
   tft.begin( TFT_ID );
-  tft.setRotation( 2 );
+  tft.setRotation(0);
   tft.fillScreen(adjustColor( TFT_WHITE ));
 
   tft.setTextColor(adjustColor(TFT_BLACK)); // Black text with white background
