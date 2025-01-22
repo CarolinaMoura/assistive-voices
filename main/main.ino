@@ -6,6 +6,7 @@
 #include "AudioHandler.h"
 #include "MemoryHandler.h"
 #include "Display.h"
+
 Debounce leftButton(leftButtonPin, RESISTANCE);
 Debounce rightButton(rightButtonPin, RESISTANCE);
 Debounce teacherButton(teacherButtonPin, RESISTANCE);
