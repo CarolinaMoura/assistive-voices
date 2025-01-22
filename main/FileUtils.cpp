@@ -4,9 +4,11 @@
 // arrays
 String categories[MAX_SIZE_CATEGORIES];
 String fileArray[MAX_SIZE_FILEARRAY];
+String sub_dialogue[MAX_SIZE_CATEGORIES];
 
 // global variables
-int categoriesCount = 0, categoriesPtr = 0, categoriesTempPtr = 0, tempPtr = 0;
+int categoriesCount = 0, categoriesPtr = 0, categoriesTempPtr = 0, categoriesScreenPtr = 0;
+int dialogueCount = 0, dialoguePtr = 0, dialogueTempPtr = 0, dialogueScreenPtr = 0;
 int filesCount = 0, filesPtr = 0;
 
 String getCurrentDir() {

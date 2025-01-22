@@ -26,6 +26,7 @@ void setup()
   initializeSD();
 
   getContent("main", &categories, &categoriesCount);
+  getContent("main/conversa", &sub_dialogue, &dialogueCount);
 
   if (categoriesCount == 0) return;
 
@@ -39,13 +40,17 @@ void loop()
     // teacher mode to scroll through categories
     if (rightButton.stateChanged() && rightButton.read() == LOW)
     {
-      scrollCategories();
+      scrollCategories(categoriesCount, &categoriesTempPtr, &categoriesScreenPtr);
     }
 
     else if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
+<<<<<<< HEAD
       is_first_teacher_mode = false;
       selectCategory();
+=======
+      selectCategory(&categories, categoriesCount, &categoriesPtr, &categoriesTempPtr, &categoriesScreenPtr);
+>>>>>>> a4fec0c (send indices as params)
     }
 
   }

@@ -20,6 +20,7 @@ int dimensions[6][4] = {
 bool teacher_mode = true;
 bool dialogue_mode = false;
 String dialogue_sub = "bloque1";
+const int font_size = 2;
 
 void initializeDisplay() {
   tft.begin( TFT_ID );
@@ -28,7 +29,7 @@ void initializeDisplay() {
 
   tft.setTextColor(adjustColor(TFT_BLACK)); // Black text with white background
   tft.setFont(&ACTIVE_FONT);         // Use the custom font
-  tft.setTextSize(2);
+  tft.setTextSize(font_size);
   tft.setCursor(50, 80);                  // Set the cursor position
 
 }
@@ -41,20 +42,20 @@ void displayImage(const String& filename) {
 
 void displayCategories() {
   // function that displays 6 categories at the time in teacher_mode
+  int numWords = min(screenWords, categoriesCount);
 
   if ( TO_DEBUG ) Serial.println(F("Display words called"));
   tft.fillScreen( adjustColor( WHITE ) ); // Clear the screen
   tft.setTextColor( adjustColor( BLACK ) );
-  // tft.setFont(&FreeSans12pt7b);
   
   // get font size and standard word height in font
-  int16_t font_size = 2, std_x=0, std_y=0, std_w=0, std_h = 0;
+  int16_t std_x=0, std_y=0, std_w=0, std_h = 0;
   tft.setTextSize(font_size);
   tft.getTextBounds("word", 0, 0, &std_x, &std_y, &std_w, &std_h);
-  int std_spacing = (SCREEN_HEIGHT - 6*std_h) / 7;
+  int std_spacing = (SCREEN_HEIGHT - (numWords)*std_h) / (numWords+1);
 
   int x = 0, y = 0;
-  for (int i = 0; i < screenWords; i++) {
+  for (int i = 0; i < numWords; i++) {
     // Extract the dimensions of the current word
     int16_t x1, y1;
     uint16_t w, h;
@@ -84,47 +85,49 @@ void displayCategories() {
   drawSelectSquare(adjustColor(RED), dimensions[0][0], dimensions[0][1], dimensions[0][2], dimensions[0][3], thickness);
 }
 
-void scrollCategories() {
+void scrollCategories(int arr_size, int *tempPtr, int *screenPtr) {
+  int numWords = min(screenWords, arr_size);
   // scrolling through categories during teacher mode
-  if (tempPtr < screenWords-1) {
+  if ((*screenPtr) < numWords-1) {
     // scroll downwards in screen
-    tempPtr++;
-    drawSelectSquare(adjustColor(WHITE), dimensions[tempPtr-1][0], dimensions[tempPtr-1][1], dimensions[tempPtr-1][2], dimensions[tempPtr-1][3], thickness);
-    drawSelectSquare(adjustColor(RED), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
+    (*screenPtr)++;
+    drawSelectSquare(adjustColor(WHITE), dimensions[(*screenPtr)-1][0], dimensions[(*screenPtr)-1][1], dimensions[(*screenPtr)-1][2], dimensions[(*screenPtr)-1][3], thickness);
+    drawSelectSquare(adjustColor(RED), dimensions[(*screenPtr)][0], dimensions[(*screenPtr)][1], dimensions[(*screenPtr)][2], dimensions[(*screenPtr)][3], thickness);
   } else {
     // renew categories in screen
-    tempPtr = 0;
-    categoriesTempPtr = (categoriesTempPtr + screenWords) % categoriesCount;
+    *screenPtr = 0;
+    *tempPtr = (*tempPtr + numWords) % arr_size;
     displayCategories();
   }
 }
 
-void selectCategory() {
+void selectCategory(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int *arrPtr, int *tempPtr, int *screenPtr) {
   // selecting a category during teacher mode
-  categoriesPtr = (categoriesTempPtr + tempPtr) % categoriesCount;
-  drawSelectSquare(adjustColor(LIGHT_GREEN), dimensions[tempPtr][0], dimensions[tempPtr][1], dimensions[tempPtr][2], dimensions[tempPtr][3], thickness);
+  *arrPtr = (*tempPtr + *screenPtr) % arr_size;
+  Serial.println(String(*arrPtr) + ", " + (*arr)[*arrPtr]);
+  drawSelectSquare(adjustColor(LIGHT_GREEN), dimensions[*screenPtr][0], dimensions[*screenPtr][1], dimensions[*screenPtr][2], dimensions[*screenPtr][3], thickness);
   teacher_mode = false;
   delay(500);
 
   // retrieve images from that folder and initiate student mode within that folder
   tft.fillScreen(adjustColor(WHITE)); // Clear the screen
 
-  if (categories[categoriesPtr] == "conversa") {
+  if ((*arr)[*arrPtr] == "conversa") {
     dialogue_mode = true;
-    dialogue_sub = "bloque1";
-    getContent("main/" + categories[categoriesPtr] + "/" + dialogue_sub, &fileArray, &filesCount);
-    Serial.println(fileArray[0]);
-    displayImage("main/" + categories[categoriesPtr] + "/" + dialogue_sub + "/" + fileArray[0]);
+    // dialogue_sub = "bloque1";
+    // getContent("main/" + categories[categoriesPtr] + "/" + dialogue_sub, &fileArray, &filesCount);
+    // Serial.println(fileArray[0]);
+    // displayImage("main/" + categories[categoriesPtr] + "/" + dialogue_sub + "/" + fileArray[0]);
 
   } else {
     dialogue_mode = false;
-    getContent("main/" + categories[categoriesPtr], &fileArray, &filesCount);
-    displayImage("main/" + categories[categoriesPtr] + "/" + fileArray[0]);
-    Serial.println(categories[categoriesPtr] + ", " + fileArray[0]);
+    getContent("main/" + (*arr)[*arrPtr], &fileArray, &filesCount);
+    displayImage("main/" + (*arr)[*arrPtr] + "/" + fileArray[0]);
+    Serial.println((*arr)[*arrPtr] + ", " + fileArray[0]);
   }
 
   // reset the temporary and image pointers
-  categoriesTempPtr = categoriesPtr, tempPtr = 0, filesPtr = 0;
+  *tempPtr = *arrPtr, *screenPtr = 0, filesPtr = 0;
 }
 
 void drawSelectSquare(uint16_t color, int x1, int y1, int w, int h, uint16_t thickness) {
@@ -142,7 +145,7 @@ void switchTeacherMode() {
 
   if (teacher_mode) {
     //start teacher mode
-    categoriesTempPtr = categoriesPtr, tempPtr = 0;
+    categoriesTempPtr = categoriesPtr, categoriesScreenPtr = 0;
     displayCategories();
 
   } else {
