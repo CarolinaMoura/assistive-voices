@@ -28,7 +28,7 @@ void setup()
 
   if (categoriesCount == 0) return;
 
-  displayCategories();
+  displayCategories(&categories, categoriesCount, categoriesTempPtr);
 }
 
 void loop()
@@ -38,12 +38,12 @@ void loop()
     // teacher mode to scroll through categories
     if (rightButton.stateChanged() && rightButton.read() == LOW)
     {
-      scrollCategories(categoriesCount, &categoriesTempPtr, &categoriesScreenPtr);
+      scrollCategories(&categories, categoriesCount, categoriesTempPtr, categoriesScreenPtr);
     }
 
     else if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
-      selectCategory(&categories, categoriesCount, &categoriesPtr, &categoriesTempPtr, &categoriesScreenPtr);
+      selectCategory(&categories, categoriesCount, categoriesPtr, categoriesTempPtr, categoriesScreenPtr);
     }
 
   }

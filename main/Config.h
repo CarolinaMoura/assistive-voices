@@ -9,7 +9,7 @@
 constexpr bool INVERT_COLORS = true;
 
 // Debug enable
-constexpr bool TO_DEBUG = false;
+constexpr bool TO_DEBUG = true;
 
 // SPI and serial communication settings
 constexpr int CHIP_SELECT = 53;        // SPI chip select pin for SD card
