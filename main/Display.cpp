@@ -29,7 +29,7 @@ void initializeDisplay() {
   tft.fillScreen(adjustColor( TFT_WHITE ));
 
   tft.setTextColor(adjustColor(TFT_BLACK)); // Black text with white background
-  tft.setFont(&rroboto12pt8b);         // Use the custom font
+  tft.setFont(&ACTIVE_FONT);         // Use the custom font
   tft.setTextSize(2);
   tft.setCursor(50, 80);                  // Set the cursor position
 
