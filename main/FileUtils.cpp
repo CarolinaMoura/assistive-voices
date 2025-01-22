@@ -111,6 +111,7 @@ String convertSpecialCharacters(String input) {
     unsigned char c = input[i];  // Treat the character as unsigned
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     if ( TO_DEBUG ) {
       //Serial.print(F("c: "));
       //Serial.println(c);
@@ -121,6 +122,12 @@ String convertSpecialCharacters(String input) {
     //   Serial.println(c);
     // }
 >>>>>>> 5b71bfb (send indices by reference and finish updating teacher_mode functions)
+=======
+    if ( TO_DEBUG ) {
+      Serial.print("c: ");
+      Serial.println(c);
+    }
+>>>>>>> b73d474 (uncomment println)
 
     switch (c) {
       // map from extended ascii to ascii encoding for Spanish special characters.
