@@ -3,7 +3,6 @@
 
 #include <Arduino.h> 
 #include <MCUFRIEND_kbv.h>
-#include "Config.h"
 #include "FileUtils.h"
 
 void initializeDisplay();

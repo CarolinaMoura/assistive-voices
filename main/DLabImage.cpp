@@ -1,6 +1,5 @@
-#include "DLabImage.h"
 #include <Arduino.h>
-#include <Fonts/FreeSans12pt7b.h> 
+#include "DLabImage.h"
 #include "FileUtils.h"
 
 int DLabImage::levenshtein(String s1, String s2){
