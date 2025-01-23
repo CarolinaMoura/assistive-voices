@@ -30,7 +30,7 @@ void setup()
 
   if (category_count == 0) return;
 
-  displayCategories(&categories, category_count, category_tmp_idx);
+  displayCategories(&categories, category_count, category_tmp_idx, category_screen_idx);
 }
 
 void loop()
@@ -73,12 +73,17 @@ void loop()
       }
       if (leftButton.stateChanged() && leftButton.read() == LOW) {
         // select image
-        image_name = fileArray[file_idx];
-        if (image_name == "regresar") {
+        if (fileArray[file_idx] == "regresar") {
           selectImageIn("main/" + categories[category_idx] + "/" + dialogue_first_words[dialogue_idx], false);
+          delay(350);
         } else {
           selectImageIn("main/" + categories[category_idx] + "/" + dialogue_first_words[dialogue_idx], true);
+          delay(1300);
         }
+        // go back to first word options
+        dialogue_first_word = true;
+        dialogue_tmp_idx = 0, dialogue_screen_idx = dialogue_idx;
+        displayCategories(&dialogue_first_words, dialogue_count, dialogue_tmp_idx, dialogue_screen_idx);
       }
     }
   }
