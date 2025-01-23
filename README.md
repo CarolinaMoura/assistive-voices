@@ -1,34 +1,32 @@
-# Assistive Voices
+# Voces de Asistencia
 
-This repository contains the code, design files, and documentation for our Electronic Communication Board, a tool designed to assist students who are cognitively capable of making decisions but lack the fine motor skills for speech. The device provides visual and auditory prompts to help students express their needs and communicate effectively.
+Este repositorio contiene el código, los archivos de diseño y la documentación para nuestra **tabla de comunicación electrónica**, una herramienta diseñada para ayudar a estudiantes que tienen la capacidad cognitiva de entender el lenguaje, pero carecen de las habilidades motoras finas para hablar. El dispositivo proporciona herramientas visuales y auditivas para ayudar a los estudiantes a expresar sus necesidades y comunicarse de manera efectiva.
 
-The default captions are in Spanish, as is our web interface to facilitate the uploading of images and audio files. 
+Los subtítulos predeterminados para las imágenes están en español, al igual que nuestra interfaz web para facilitar la carga de imágenes y archivos de audio.
 
-# Setup 
-A detailed outline of our project features and purpose are available in the teachers' guide, accessible in `assistive-voices/instructions/teacher-guide.pdf`. This file is in Spanish. 
+# Configuración
 
-Likewise, our hardware assembly guide is accessible via `assistive-voices/instructions/assembly-guide.pdf`. This file includes all of the schematics, technical specifications, and instructions for reproducing our project. All software, default images, captions, and audio files are available in this repository. 
+Un esquema detallado de las características y el propósito de nuestro proyecto está disponible en la guía para profesores, accesible en `assistive-voices/instructions/teacher-guide.pdf`. Este archivo está en español.
 
-To assemble our project, you will need the following components: 
-- Arduino Mega Rev3 
-- 480 x 320 TFT LCD screen 
-- SD card
-- 8 Ω speaker
-- LM386 audio amplifier
-- MT3608 boost converter 
+Asimismo, nuestra guía de ensamblaje de hardware está disponible en `assistive-voices/instructions/assembly-guide.pdf`. Este archivo incluye todos los esquemas, especificaciones técnicas e instrucciones para reproducir nuestro proyecto. Todo el software, imágenes predeterminadas, subtítulos de las imágenes, y archivos de audio están disponibles en este repositorio.
 
-And you will need to have the following Arduino libraries installed: 
+Para ensamblar nuestro proyecto, necesitarás los siguientes componentes:
+- Arduino Mega Rev3
+- Pantalla TFT LCD de 480 x 320
+- Tarjeta SD
+- Altavoz de 8 Ω
+- Reproductor MP3 
+
+Además, deberás instalar las siguientes bibliotecas de Arduino:
 - Adafruit GFX
 - MCUFRIEND_kbv
 - SD
-- TMRpcm
-- Fonts/FreeSans12pt7b
+- 
 
-Additional details are available in our aforementioned guides. 
+Detalles adicionales están disponibles en las guías mencionadas anteriormente.
 
-# License 
-This project is licensed under the MIT License.
+# Licencia 
+Este proyecto está licenciado bajo la Licencia de MIT.
 
-# Acknowledgements 
-This project was developed in collaboration with the Adaptive Design Center (CDA) and the MIT D-Lab: Development class (EC.701). Special thanks to all of our collaborators for their input and assistance.
-
+# Agradecimientos 
+Este proyecto fue desarrollado en colaboración con la Escuela Perkins para Ciegos y la clase MIT D-Lab: Development (EC.701). Un agradecimiento especial a todos nuestros colaboradores por sus aportes y su apoyo.
