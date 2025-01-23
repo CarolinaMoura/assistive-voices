@@ -26,7 +26,7 @@ void setup()
   initializeSD();
 
   getContent("main", &categories, &category_count);
-  getContent("main/conversa", &sub_dialogue, &dialogue_count);
+  getContent("main/conversa", &dialogue_first_words, &dialogue_count);
 
   if (category_count == 0) return;
 
@@ -54,26 +54,35 @@ void loop()
   else if (dialogue_mode)
   {
     // dialogue mode within student mode to build sentences by blocks
-    if (rightButton.stateChanged() && rightButton.read() == LOW)
-    {
-      // scroll image
-      getNextImageIn("main/" + categories[category_idx] + "/" + dialogue_sub);
-    }
-    if (leftButton.stateChanged() && leftButton.read() == LOW)
-    {
-      // select image
-      selectImageIn("main/" + categories[category_idx] + "/" + dialogue_sub);
-      // switch subfolders within the dialogue mode
-      if (dialogue_sub == "bloque1")
+    if (dialogue_first_word) {
+      // scroll amongst first word options
+      if (rightButton.stateChanged() && rightButton.read() == LOW)
       {
-        dialogue_sub = fileArray[file_idx];
+        scrollCategories(&dialogue_first_words, dialogue_count, dialogue_tmp_idx, dialogue_screen_idx);
       }
-      else
+
+      else if (leftButton.stateChanged() && leftButton.read() == LOW)
       {
-        dialogue_sub = "bloque1";
+        selectCategory(&dialogue_first_words, dialogue_count, dialogue_idx, dialogue_tmp_idx, dialogue_screen_idx);
       }
-      getContent("main/" + categories[category_idx] + "/" + dialogue_sub, &fileArray, &file_count);
-      file_idx = -1; // getNextImage will increase it by 1 when called
+    } else {
+      //scroll within a category of second word options related to the first choice
+      if (rightButton.stateChanged() && rightButton.read() == LOW) {
+        // scroll image
+        getNextImageIn("main/" + categories[category_idx] + "/" + dialogue_sub);
+      }
+      if (leftButton.stateChanged() && leftButton.read() == LOW) {
+        // select image
+        selectImageIn("main/" + categories[category_idx] + "/" + dialogue_sub);
+        // switch subfolders within the dialogue mode
+        if (dialogue_sub == "bloque1"){
+          dialogue_sub = fileArray[file_idx];
+        } else {
+          dialogue_sub = "bloque1";
+        }
+        getContent("main/" + categories[category_idx] + "/" + dialogue_sub, &fileArray, &file_count);
+        file_idx = -1; // getNextImage will increase it by 1 when called
+      }
     }
   }
   else

@@ -19,6 +19,7 @@ int dimensions[6][4] = {
 // global variables
 bool teacher_mode = true;
 bool dialogue_mode = false;
+bool dialogue_first_word = true;
 String dialogue_sub = "bloque1";
 const int font_size = 2;
 
@@ -41,7 +42,7 @@ void displayImage(const String& filename) {
 
 
 void displayCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tempPtr) {
-  // function that displays 6 categories at the time in teacher_mode
+  // function that displays up to 'screenWords' categories at the time in teacher_mode
   int numWords = min(screenWords, arr_size);
 
   if ( TO_DEBUG ) Serial.println(F("Display words called"));
@@ -102,28 +103,32 @@ void scrollCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tem
 }
 
 void selectCategory(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &arrPtr, int &tempPtr, int &screenPtr) {
-  // selecting a category during teacher mode
+  // selecting a category during current mode
   arrPtr = (tempPtr + screenPtr) % arr_size;
   Serial.println(String(arrPtr) + ", " + (*arr)[arrPtr]);
   drawSelectSquare(adjustColor(LIGHT_GREEN), dimensions[screenPtr][0], dimensions[screenPtr][1], dimensions[screenPtr][2], dimensions[screenPtr][3], thickness);
-  teacher_mode = false;
   delay(500);
 
   // retrieve images from that folder and initiate student mode within that folder
   tft.fillScreen(adjustColor(WHITE)); // Clear the screen
 
-  if ((*arr)[arrPtr] == "conversa") {
-    dialogue_mode = true;
-    // dialogue_sub = "bloque1";
-    // getContent("main/" + categories[category_idx] + "/" + dialogue_sub, &fileArray, &file_count);
-    // Serial.println(fileArray[0]);
-    // displayImage("main/" + categories[category_idx] + "/" + dialogue_sub + "/" + fileArray[0]);
+  if (teacher_mode) {
+    teacher_mode = false;
+    if ((*arr)[arrPtr] == "conversa") {
+      dialogue_mode = true, dialogue_first_word = true;
+      // dialogue_sub = "bloque1";
+      // getContent("main/" + categories[category_idx] + "/" + dialogue_sub, &fileArray, &file_count);
+      // Serial.println(fileArray[0]);
+      // displayImage("main/" + categories[category_idx] + "/" + dialogue_sub + "/" + fileArray[0]);
 
-  } else {
-    dialogue_mode = false;
-    getContent("main/" + (*arr)[arrPtr], &fileArray, &file_count);
-    displayImage("main/" + (*arr)[arrPtr] + "/" + fileArray[0]);
-    // Serial.println((*arr)[*arrPtr] + ", " + fileArray[0]);
+    } else {
+      dialogue_mode = false;
+      getContent("main/" + (*arr)[arrPtr], &fileArray, &file_count);
+      displayImage("main/" + (*arr)[arrPtr] + "/" + fileArray[0]);
+      // Serial.println((*arr)[*arrPtr] + ", " + fileArray[0]);
+    }
+  } else if (dialogue_mode) {
+    // code here
   }
 
   // reset the temporary and image pointers
