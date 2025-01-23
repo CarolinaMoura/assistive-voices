@@ -26,9 +26,9 @@ def remove_accents(input_str: str) -> str:
     return "".join([c for c in no_accents if c.isalnum() or c == '_']).replace(" ", "_")
 
 API_KEY = st.secrets["api_key"]
-# client_options = {
-#         "api_endpoint": f"https://texttospeech.googleapis.com/v1/text:synthesize?key={API_KEY}"
-#     }
+client_options = {
+        "api_endpoint": f"https://texttospeech.googleapis.com/v1/text:synthesize?key={API_KEY}"
+    }
 # client = texttospeech.TextToSpeechClient()
 
 
