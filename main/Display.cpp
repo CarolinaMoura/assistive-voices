@@ -19,7 +19,7 @@ int dimensions[6][4] = {
 // global variables
 bool teacher_mode = true;
 bool dialogue_mode = false;
-String dialogue_sub = "bloque1";
+bool dialogue_first_word = true;
 const int font_size = 2;
 
 void initializeDisplay() {
@@ -40,8 +40,8 @@ void displayImage(const String& filename) {
 }
 
 
-void displayCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tempPtr) {
-  // function that displays 6 categories at the time in teacher_mode
+void displayCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tempPtr, int &screenPtr) {
+  // function that displays up to 'screenWords' categories at the time in teacher_mode
   int numWords = min(screenWords, arr_size);
 
   if ( TO_DEBUG ) Serial.println(F("Display words called"));
@@ -82,7 +82,7 @@ void displayCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &te
     dimensions[i][2] = w + 4*thickness, dimensions[i][3] = h + 4*thickness;
   }
   
-  drawSelectSquare(adjustColor(RED), dimensions[0][0], dimensions[0][1], dimensions[0][2], dimensions[0][3], thickness);
+  drawSelectSquare(adjustColor(RED), dimensions[screenPtr][0], dimensions[screenPtr][1], dimensions[screenPtr][2], dimensions[screenPtr][3], thickness);
 }
 
 void scrollCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tempPtr, int &screenPtr) {
@@ -97,33 +97,39 @@ void scrollCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tem
     // renew categories in screen
     screenPtr = 0;
     tempPtr = (tempPtr + numWords) % arr_size;
-    displayCategories(arr, arr_size, tempPtr);
+    displayCategories(arr, arr_size, tempPtr, screenPtr);
   }
 }
 
-void selectCategory(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &arrPtr, int &tempPtr, int &screenPtr) {
-  // selecting a category during teacher mode
+void selectCategory(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &arrPtr, int &tempPtr, int &screenPtr, bool audio) {
+  // selecting a category during current mode
   arrPtr = (tempPtr + screenPtr) % arr_size;
-  Serial.println(String(arrPtr) + ", " + (*arr)[arrPtr]);
+  if ( TO_DEBUG ) Serial.println(String(arrPtr) + ", " + (*arr)[arrPtr]);
   drawSelectSquare(adjustColor(LIGHT_GREEN), dimensions[screenPtr][0], dimensions[screenPtr][1], dimensions[screenPtr][2], dimensions[screenPtr][3], thickness);
-  teacher_mode = false;
+  if (audio) {
+    // play audio if possible
+    // add a delay of 1300
+  }
   delay(500);
 
   // retrieve images from that folder and initiate student mode within that folder
   tft.fillScreen(adjustColor(WHITE)); // Clear the screen
 
-  if ((*arr)[arrPtr] == "conversa") {
-    dialogue_mode = true;
-    // dialogue_sub = "bloque1";
-    // getContent("main/" + categories[category_idx] + "/" + dialogue_sub, &fileArray, &file_count);
-    // Serial.println(fileArray[0]);
-    // displayImage("main/" + categories[category_idx] + "/" + dialogue_sub + "/" + fileArray[0]);
-
-  } else {
-    dialogue_mode = false;
-    getContent("main/" + (*arr)[arrPtr], &fileArray, &file_count);
-    displayImage("main/" + (*arr)[arrPtr] + "/" + fileArray[0]);
-    // Serial.println((*arr)[*arrPtr] + ", " + fileArray[0]);
+  if (teacher_mode) {
+    teacher_mode = false;
+    if ((*arr)[arrPtr] == "conversa") {
+      dialogue_mode = true, dialogue_first_word = true;
+      dialogue_idx = 0, dialogue_tmp_idx = 0; dialogue_screen_idx = 0;
+      displayCategories(&dialogue_first_words, dialogue_count, dialogue_tmp_idx, dialogue_screen_idx);
+    } else {
+      dialogue_mode = false;
+      getContent("main/" + (*arr)[arrPtr], &fileArray, &file_count);
+      displayImage("main/" + (*arr)[arrPtr] + "/" + fileArray[0]);
+    }
+  } else if (dialogue_mode) {
+    dialogue_first_word = false;
+    getContent("main/" + categories[category_idx] + "/" + (*arr)[arrPtr], &fileArray, &file_count);
+    displayImage("main/" + categories[category_idx] + "/" + (*arr)[arrPtr] + "/" + fileArray[0]);
   }
 
   // reset the temporary and image pointers
@@ -146,12 +152,17 @@ void switchTeacherMode() {
   if (teacher_mode) {
     //start teacher mode
     category_tmp_idx = category_idx, category_screen_idx = 0;
-    displayCategories(&categories, category_count, category_tmp_idx);
+    displayCategories(&categories, category_count, category_tmp_idx, category_screen_idx);
 
   } else {
     // return to previous category and image, as no new one selected
     if (dialogue_mode) {
-      displayImage("main/" + categories[category_idx] + "/" + dialogue_sub + "/" + fileArray[file_idx]);
+      if (dialogue_first_word) {
+        dialogue_idx = 0, dialogue_tmp_idx = 0; dialogue_screen_idx = 0;
+        displayCategories(&dialogue_first_words, dialogue_count, dialogue_tmp_idx, dialogue_screen_idx);
+      } else {
+        displayImage("main/" + categories[category_idx] + "/" + dialogue_first_words[dialogue_idx] + "/" + fileArray[file_idx]);
+      }
     } else {
       displayImage("main/" + categories[category_idx] + "/" + fileArray[file_idx]);
     }
@@ -172,13 +183,15 @@ void getNextImageIn(String folder_path) {
   displayImage(folder_path + "/" + fileArray[file_idx]);
 }
 
-void selectImageIn(String folder_path) {
+void selectImageIn(String folder_path, bool audio) {
   uint16_t color = LIGHT_GREEN;
   drawSquare(color);
   String file_name = folder_path + "/" + fileArray[file_idx] ; 
   DLabImage selected_img( file_name , SD ) ;
-  int track = selected_img.getAudioFile( ) ;
-  sendDFCommand( Serial3 , 0x03 , track ) ;
+  if (audio) {
+    int track = selected_img.getAudioFile( ) ;
+    sendDFCommand( Serial3 , 0x03 , track ) ;
+  }
 }
 
 uint16_t adjustColor(uint16_t color) {

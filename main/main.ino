@@ -26,11 +26,11 @@ void setup()
   initializeSD();
 
   getContent("main", &categories, &category_count);
-  getContent("main/conversa", &sub_dialogue, &dialogue_count);
+  getContent("main/conversa", &dialogue_first_words, &dialogue_count);
 
   if (category_count == 0) return;
 
-  displayCategories(&categories, category_count, category_tmp_idx);
+  displayCategories(&categories, category_count, category_tmp_idx, category_screen_idx);
 }
 
 void loop()
@@ -46,7 +46,7 @@ void loop()
     else if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
       is_first_teacher_mode = false;
-      selectCategory(&categories, category_count, category_idx, category_tmp_idx, category_screen_idx);
+      selectCategory(&categories, category_count, category_idx, category_tmp_idx, category_screen_idx, false);
     }
 
   }
@@ -54,26 +54,37 @@ void loop()
   else if (dialogue_mode)
   {
     // dialogue mode within student mode to build sentences by blocks
-    if (rightButton.stateChanged() && rightButton.read() == LOW)
-    {
-      // scroll image
-      getNextImageIn("main/" + categories[category_idx] + "/" + dialogue_sub);
-    }
-    if (leftButton.stateChanged() && leftButton.read() == LOW)
-    {
-      // select image
-      selectImageIn("main/" + categories[category_idx] + "/" + dialogue_sub);
-      // switch subfolders within the dialogue mode
-      if (dialogue_sub == "bloque1")
-      {
-        dialogue_sub = fileArray[file_idx];
+    if (dialogue_first_word) {
+      // scroll amongst first word options
+      if (rightButton.stateChanged() && rightButton.read() == LOW) {
+        scrollCategories(&dialogue_first_words, dialogue_count, dialogue_tmp_idx, dialogue_screen_idx);
+      } else if (leftButton.stateChanged() && leftButton.read() == LOW) {
+        if (dialogue_first_words[dialogue_tmp_idx] == "dialogo") {
+          selectCategory(&dialogue_first_words, dialogue_count, dialogue_idx, dialogue_tmp_idx, dialogue_screen_idx, false);
+        } else {
+          selectCategory(&dialogue_first_words, dialogue_count, dialogue_idx, dialogue_tmp_idx, dialogue_screen_idx, true);
+        }
       }
-      else
-      {
-        dialogue_sub = "bloque1";
+    } else {
+      //scroll within a category of second word options related to the first choice
+      if (rightButton.stateChanged() && rightButton.read() == LOW) {
+        // scroll image
+        getNextImageIn("main/" + categories[category_idx] + "/" + dialogue_first_words[dialogue_idx]);
       }
-      getContent("main/" + categories[category_idx] + "/" + dialogue_sub, &fileArray, &file_count);
-      file_idx = -1; // getNextImage will increase it by 1 when called
+      if (leftButton.stateChanged() && leftButton.read() == LOW) {
+        // select image
+        if (fileArray[file_idx] == "regresar") {
+          selectImageIn("main/" + categories[category_idx] + "/" + dialogue_first_words[dialogue_idx], false);
+          delay(350);
+        } else {
+          selectImageIn("main/" + categories[category_idx] + "/" + dialogue_first_words[dialogue_idx], true);
+          delay(1300);
+        }
+        // go back to first word options
+        dialogue_first_word = true;
+        dialogue_tmp_idx = 0, dialogue_screen_idx = dialogue_idx;
+        displayCategories(&dialogue_first_words, dialogue_count, dialogue_tmp_idx, dialogue_screen_idx);
+      }
     }
   }
   else
@@ -85,7 +96,7 @@ void loop()
     }
     if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
-      selectImageIn("main/" + categories[category_idx]);
+      selectImageIn("main/" + categories[category_idx], true);
     }
   }
 
