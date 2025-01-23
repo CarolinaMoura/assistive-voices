@@ -29,7 +29,7 @@ API_KEY = st.secrets["api_key"]
 client_options = {
         "api_endpoint": f"https://texttospeech.googleapis.com/v1/text:synthesize?key={API_KEY}"
     }
-# client = texttospeech.TextToSpeechClient()
+client = texttospeech.TextToSpeechClient(client_options=client_options)
 
 
 # def synthesize_speech(text, language_code="es-US", voice_name="es-US-Neural2-A"):
