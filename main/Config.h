@@ -46,9 +46,9 @@ extern String fileArray[MAX_SIZE_FILEARRAY];
 extern String sub_dialogue[MAX_SIZE_CATEGORIES];
 
 // Extern declarations for global variables
-extern int categoriesCount, categoriesPtr, categoriesTempPtr, categoriesScreenPtr;
-extern int dialogueCount, dialoguePtr, dialogueTempPtr, dialogueScreenPtr;
-extern int filesCount, filesPtr;
+extern int category_count, category_idx, category_tmp_idx, category_screen_idx;
+extern int dialogue_count, dialogue_idx, dialogue_tmp_idx, dialogue_screen_idx;
+extern int file_count, file_idx;
 extern bool dialogue_mode , teacher_mode ;
 extern String dialogue_sub ;
 extern const int font_size;
