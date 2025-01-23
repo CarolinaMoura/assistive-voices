@@ -25,12 +25,12 @@ void setup()
 
   initializeSD();
 
-  getContent("main", &categories, &categoriesCount);
-  getContent("main/conversa", &sub_dialogue, &dialogueCount);
+  getContent("main", &categories, &category_count);
+  getContent("main/conversa", &sub_dialogue, &dialogue_count);
 
-  if (categoriesCount == 0) return;
+  if (category_count == 0) return;
 
-  displayCategories(&categories, categoriesCount, categoriesTempPtr);
+  displayCategories(&categories, category_count, category_tmp_idx);
 }
 
 void loop()
@@ -40,13 +40,13 @@ void loop()
     // teacher mode to scroll through categories
     if (rightButton.stateChanged() && rightButton.read() == LOW)
     {
-      scrollCategories(&categories, categoriesCount, categoriesTempPtr, categoriesScreenPtr);
+      scrollCategories(&categories, category_count, category_tmp_idx, category_screen_idx);
     }
 
     else if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
       is_first_teacher_mode = false;
-      selectCategory(&categories, categoriesCount, categoriesPtr, categoriesTempPtr, categoriesScreenPtr);
+      selectCategory(&categories, category_count, category_idx, category_tmp_idx, category_screen_idx);
     }
 
   }
@@ -57,23 +57,23 @@ void loop()
     if (rightButton.stateChanged() && rightButton.read() == LOW)
     {
       // scroll image
-      getNextImageIn("main/" + categories[categoriesPtr] + "/" + dialogue_sub);
+      getNextImageIn("main/" + categories[category_idx] + "/" + dialogue_sub);
     }
     if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
       // select image
-      selectImageIn("main/" + categories[categoriesPtr] + "/" + dialogue_sub);
+      selectImageIn("main/" + categories[category_idx] + "/" + dialogue_sub);
       // switch subfolders within the dialogue mode
       if (dialogue_sub == "bloque1")
       {
-        dialogue_sub = fileArray[filesPtr];
+        dialogue_sub = fileArray[file_idx];
       }
       else
       {
         dialogue_sub = "bloque1";
       }
-      getContent("main/" + categories[categoriesPtr] + "/" + dialogue_sub, &fileArray, &filesCount);
-      filesPtr = -1; // getNextImage will increase it by 1 when called
+      getContent("main/" + categories[category_idx] + "/" + dialogue_sub, &fileArray, &file_count);
+      file_idx = -1; // getNextImage will increase it by 1 when called
     }
   }
   else
@@ -81,11 +81,11 @@ void loop()
     // student mode to scroll through the options in a category
     if (rightButton.stateChanged() && rightButton.read() == LOW)
     {
-      getNextImageIn("main/" + categories[categoriesPtr]);
+      getNextImageIn("main/" + categories[category_idx]);
     }
     if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
-      selectImageIn("main/" + categories[categoriesPtr]);
+      selectImageIn("main/" + categories[category_idx]);
     }
   }
 

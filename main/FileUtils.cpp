@@ -7,12 +7,12 @@ String fileArray[MAX_SIZE_FILEARRAY];
 String sub_dialogue[MAX_SIZE_CATEGORIES];
 
 // global variables
-int categoriesCount = 0, categoriesPtr = 0, categoriesTempPtr = 0, categoriesScreenPtr = 0;
-int dialogueCount = 0, dialoguePtr = 0, dialogueTempPtr = 0, dialogueScreenPtr = 0;
-int filesCount = 0, filesPtr = 0;
+int category_count = 0, category_idx = 0, category_tmp_idx = 0, category_screen_idx = 0;
+int dialogue_count = 0, dialogue_idx = 0, dialogue_tmp_idx = 0, dialogue_screen_idx = 0;
+int file_count = 0, file_idx = 0;
 
 String getCurrentDir() {
-  return "main/" + categories[categoriesPtr] + "/" + fileArray[filesPtr];
+  return "main/" + categories[category_idx] + "/" + fileArray[file_idx];
 }
 
 void getContent(String dirname, String (*arr)[MAX_SIZE_CATEGORIES], int* count) {
