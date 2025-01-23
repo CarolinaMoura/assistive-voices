@@ -24,7 +24,7 @@ const int font_size = 2;
 
 void initializeDisplay() {
   tft.begin( TFT_ID );
-  tft.setRotation(0);
+  tft.setRotation(2);
   tft.fillScreen(adjustColor( TFT_WHITE ));
 
   tft.setTextColor(adjustColor(TFT_BLACK)); // Black text with white background
