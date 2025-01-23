@@ -46,7 +46,7 @@ void loop()
     else if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
       is_first_teacher_mode = false;
-      selectCategory(&categories, category_count, category_idx, category_tmp_idx, category_screen_idx);
+      selectCategory(&categories, category_count, category_idx, category_tmp_idx, category_screen_idx, false);
     }
 
   }
@@ -56,32 +56,29 @@ void loop()
     // dialogue mode within student mode to build sentences by blocks
     if (dialogue_first_word) {
       // scroll amongst first word options
-      if (rightButton.stateChanged() && rightButton.read() == LOW)
-      {
+      if (rightButton.stateChanged() && rightButton.read() == LOW) {
         scrollCategories(&dialogue_first_words, dialogue_count, dialogue_tmp_idx, dialogue_screen_idx);
-      }
-
-      else if (leftButton.stateChanged() && leftButton.read() == LOW)
-      {
-        selectCategory(&dialogue_first_words, dialogue_count, dialogue_idx, dialogue_tmp_idx, dialogue_screen_idx);
+      } else if (leftButton.stateChanged() && leftButton.read() == LOW) {
+        if (dialogue_first_words[dialogue_tmp_idx] == "dialogo") {
+          selectCategory(&dialogue_first_words, dialogue_count, dialogue_idx, dialogue_tmp_idx, dialogue_screen_idx, false);
+        } else {
+          selectCategory(&dialogue_first_words, dialogue_count, dialogue_idx, dialogue_tmp_idx, dialogue_screen_idx, true);
+        }
       }
     } else {
       //scroll within a category of second word options related to the first choice
       if (rightButton.stateChanged() && rightButton.read() == LOW) {
         // scroll image
-        getNextImageIn("main/" + categories[category_idx] + "/" + dialogue_sub);
+        getNextImageIn("main/" + categories[category_idx] + "/" + dialogue_first_words[dialogue_idx]);
       }
       if (leftButton.stateChanged() && leftButton.read() == LOW) {
         // select image
-        selectImageIn("main/" + categories[category_idx] + "/" + dialogue_sub);
-        // switch subfolders within the dialogue mode
-        if (dialogue_sub == "bloque1"){
-          dialogue_sub = fileArray[file_idx];
+        image_name = fileArray[file_idx];
+        if (image_name == "regresar") {
+          selectImageIn("main/" + categories[category_idx] + "/" + dialogue_first_words[dialogue_idx], false);
         } else {
-          dialogue_sub = "bloque1";
+          selectImageIn("main/" + categories[category_idx] + "/" + dialogue_first_words[dialogue_idx], true);
         }
-        getContent("main/" + categories[category_idx] + "/" + dialogue_sub, &fileArray, &file_count);
-        file_idx = -1; // getNextImage will increase it by 1 when called
       }
     }
   }
@@ -94,7 +91,7 @@ void loop()
     }
     if (leftButton.stateChanged() && leftButton.read() == LOW)
     {
-      selectImageIn("main/" + categories[category_idx]);
+      selectImageIn("main/" + categories[category_idx], true);
     }
   }
 
