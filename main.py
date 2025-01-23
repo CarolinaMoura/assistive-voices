@@ -1,10 +1,10 @@
 import unicodedata
 import streamlit as st
 from PIL import Image
+from gtts import gTTS
+from io import BytesIO
 import io
 from typing import NewType
-import random
-from google.cloud import texttospeech
 import zipfile
 
 import toml
@@ -25,13 +25,8 @@ def remove_accents(input_str: str) -> str:
     no_accents = "".join([c for c in nfkd_form if not unicodedata.combining(c)])
     return "".join([c for c in no_accents if c.isalnum() or c == '_']).replace(" ", "_")
 
-API_KEY = st.secrets["api_key"]
-client_options = {
-        "api_endpoint": f"https://texttospeech.googleapis.com/v1/text:synthesize?key={API_KEY}"
-    }
 
-
-def synthesize_speech(text, language_code="es-US", voice_name="es-US-Neural2-A"):
+def synthesize_speech(text):
     """
     Convert text to speech using Google Text-to-Speech API with Spanish voice.
 
@@ -43,24 +38,10 @@ def synthesize_speech(text, language_code="es-US", voice_name="es-US-Neural2-A")
     Returns:
         The audio content.
     """
-    client = texttospeech.TextToSpeechClient(client_options=client_options)
-
-    synthesis_input = texttospeech.SynthesisInput(text=text)
-
-    voice = texttospeech.VoiceSelectionParams(
-        language_code=language_code,
-        name=voice_name,
-    )
-
-    audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.MP3
-    )
-
-    response = client.synthesize_speech(
-        input=synthesis_input, voice=voice, audio_config=audio_config
-    )
-
-    return response.audio_content
+    sound_file = BytesIO()
+    tts = gTTS(text, lang='es', tld="com.mx")
+    tts.write_to_fp(sound_file)
+    return sound_file
 
 
 ####### IMAGE FUNCTIONS #######
@@ -176,12 +157,16 @@ def create_zip_file():
         if "processed_image" in st.session_state:
             zip_file.writestr(f"{st.session_state.filename}", st.session_state.processed_image.getvalue())
         
-        # if "speech_file" in st.session_state:
-        #     zip_file.writestr(st.session_state.audio_filename, st.session_state.speech_file)
+        if "speech_file" in st.session_state:
+            # Get the audio content from BytesIO object
+            st.session_state.speech_file.seek(0)  # Reset pointer to start
+            audio_content = st.session_state.speech_file.getvalue()
+            zip_file.writestr(st.session_state.audio_filename, audio_content)
         
         if "updated_metadata" in st.session_state:
             zip_file.writestr(st.session_state.metadata_filename, st.session_state.updated_metadata)
     
+    zip_buffer.seek(0)  # Reset the buffer pointer
     return zip_buffer
 
 
@@ -271,8 +256,7 @@ def main():
                 while len(audio_filename) < 4:
                     audio_filename = '0' + audio_filename
 
-                speech = synthesize_speech(
-                    caption, language_code="es-US", voice_name="es-US-Neural2-A")
+                speech = synthesize_speech(caption)
                 
                 st.session_state.speech_file = speech
                 st.session_state.audio_filename = f"{audio_filename}.mp3"
