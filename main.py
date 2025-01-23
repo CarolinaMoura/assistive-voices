@@ -4,7 +4,7 @@ from PIL import Image
 import io
 from typing import NewType
 import random
-from google.cloud import texttospeech
+# from google.cloud import texttospeech
 import zipfile
 
 import toml
