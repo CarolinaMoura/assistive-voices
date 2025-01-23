@@ -7,9 +7,9 @@
 
 void initializeDisplay();
 void displayImage(const String& filename);
-void displayCategories();
-void scrollCategories();
-void selectCategory();
+void displayCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tempPtr);
+void scrollCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tempPtr, int &screenPtr);
+void selectCategory(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &arrPtr, int &tempPtr, int &screenPtr);
 void drawSelectSquare(uint16_t color, int x1, int y1, int w, int h, uint16_t thickness);
 void switchTeacherMode() ;
 void drawSquare(uint16_t color);
