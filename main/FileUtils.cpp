@@ -4,7 +4,7 @@
 // arrays
 String categories[MAX_SIZE_CATEGORIES];
 String fileArray[MAX_SIZE_FILEARRAY];
-String sub_dialogue[MAX_SIZE_CATEGORIES];
+String dialogue_first_words[MAX_SIZE_CATEGORIES];
 
 // global variables
 int category_count = 0, category_idx = 0, category_tmp_idx = 0, category_screen_idx = 0;

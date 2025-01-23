@@ -20,7 +20,6 @@ int dimensions[6][4] = {
 bool teacher_mode = true;
 bool dialogue_mode = false;
 bool dialogue_first_word = true;
-String dialogue_sub = "bloque1";
 const int font_size = 2;
 
 void initializeDisplay() {
@@ -41,7 +40,7 @@ void displayImage(const String& filename) {
 }
 
 
-void displayCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tempPtr) {
+void displayCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tempPtr, int &screenPtr) {
   // function that displays up to 'screenWords' categories at the time in teacher_mode
   int numWords = min(screenWords, arr_size);
 
@@ -83,7 +82,7 @@ void displayCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &te
     dimensions[i][2] = w + 4*thickness, dimensions[i][3] = h + 4*thickness;
   }
   
-  drawSelectSquare(adjustColor(RED), dimensions[0][0], dimensions[0][1], dimensions[0][2], dimensions[0][3], thickness);
+  drawSelectSquare(adjustColor(RED), dimensions[screenPtr][0], dimensions[screenPtr][1], dimensions[screenPtr][2], dimensions[screenPtr][3], thickness);
 }
 
 void scrollCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tempPtr, int &screenPtr) {
@@ -98,7 +97,7 @@ void scrollCategories(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &tem
     // renew categories in screen
     screenPtr = 0;
     tempPtr = (tempPtr + numWords) % arr_size;
-    displayCategories(arr, arr_size, tempPtr);
+    displayCategories(arr, arr_size, tempPtr, screenPtr);
   }
 }
 
@@ -109,6 +108,7 @@ void selectCategory(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &arrPt
   drawSelectSquare(adjustColor(LIGHT_GREEN), dimensions[screenPtr][0], dimensions[screenPtr][1], dimensions[screenPtr][2], dimensions[screenPtr][3], thickness);
   if (audio) {
     // play audio if possible
+    // add a delay of 1300
   }
   delay(500);
 
@@ -119,7 +119,8 @@ void selectCategory(String (*arr)[MAX_SIZE_CATEGORIES], int arr_size, int &arrPt
     teacher_mode = false;
     if ((*arr)[arrPtr] == "conversa") {
       dialogue_mode = true, dialogue_first_word = true;
-      displayCategories(&dialogue_first_word, dialogue_count, dialogue_tmp_idx);
+      dialogue_idx = 0, dialogue_tmp_idx = 0; dialogue_screen_idx = 0;
+      displayCategories(&dialogue_first_words, dialogue_count, dialogue_tmp_idx, dialogue_screen_idx);
     } else {
       dialogue_mode = false;
       getContent("main/" + (*arr)[arrPtr], &fileArray, &file_count);
@@ -151,12 +152,17 @@ void switchTeacherMode() {
   if (teacher_mode) {
     //start teacher mode
     category_tmp_idx = category_idx, category_screen_idx = 0;
-    displayCategories(&categories, category_count, category_tmp_idx);
+    displayCategories(&categories, category_count, category_tmp_idx, category_screen_idx);
 
   } else {
     // return to previous category and image, as no new one selected
     if (dialogue_mode) {
-      displayImage("main/" + categories[category_idx] + "/" + dialogue_first_word[dialogue_idx] + "/" + fileArray[file_idx]);
+      if (dialogue_first_word) {
+        dialogue_idx = 0, dialogue_tmp_idx = 0; dialogue_screen_idx = 0;
+        displayCategories(&dialogue_first_words, dialogue_count, dialogue_tmp_idx, dialogue_screen_idx);
+      } else {
+        displayImage("main/" + categories[category_idx] + "/" + dialogue_first_words[dialogue_idx] + "/" + fileArray[file_idx]);
+      }
     } else {
       displayImage("main/" + categories[category_idx] + "/" + fileArray[file_idx]);
     }

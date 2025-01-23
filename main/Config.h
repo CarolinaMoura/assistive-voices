@@ -50,7 +50,6 @@ extern int category_count, category_idx, category_tmp_idx, category_screen_idx;
 extern int dialogue_count, dialogue_idx, dialogue_tmp_idx, dialogue_screen_idx;
 extern int file_count, file_idx;
 extern bool dialogue_mode , teacher_mode , dialogue_first_word;
-extern String dialogue_sub ;
 extern const int font_size;
 
 #endif // CONFIG_H
