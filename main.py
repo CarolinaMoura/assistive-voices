@@ -25,11 +25,11 @@ def remove_accents(input_str: str) -> str:
     no_accents = "".join([c for c in nfkd_form if not unicodedata.combining(c)])
     return "".join([c for c in no_accents if c.isalnum() or c == '_']).replace(" ", "_")
 
-# API_KEY = st.secrets["api_key"]
-# client_options = {
-#         "api_endpoint": f"https://texttospeech.googleapis.com/v1/text:synthesize?key={API_KEY}"
-#     }
-# client = texttospeech.TextToSpeechClient()
+API_KEY = st.secrets["api_key"]
+client_options = {
+        "api_endpoint": f"https://texttospeech.googleapis.com/v1/text:synthesize?key={API_KEY}"
+    }
+client = texttospeech.TextToSpeechClient()
 
 
 # def synthesize_speech(text, language_code="es-US", voice_name="es-US-Neural2-A"):
