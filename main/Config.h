@@ -43,13 +43,13 @@ constexpr int screenWords = 6;
 // Extern declarations for global arrays
 extern String categories[MAX_SIZE_CATEGORIES];
 extern String fileArray[MAX_SIZE_FILEARRAY];
-extern String sub_dialogue[MAX_SIZE_CATEGORIES];
+extern String dialogue_first_words[MAX_SIZE_CATEGORIES];
 
 // Extern declarations for global variables
 extern int category_count, category_idx, category_tmp_idx, category_screen_idx;
 extern int dialogue_count, dialogue_idx, dialogue_tmp_idx, dialogue_screen_idx;
 extern int file_count, file_idx;
-extern bool dialogue_mode , teacher_mode ;
+extern bool dialogue_mode , teacher_mode , dialogue_first_word;
 extern String dialogue_sub ;
 extern const int font_size;
 
