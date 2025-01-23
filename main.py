@@ -29,39 +29,39 @@ def remove_accents(input_str: str) -> str:
 # client_options = {
 #         "api_endpoint": f"https://texttospeech.googleapis.com/v1/text:synthesize?key={API_KEY}"
 #     }
-client = texttospeech.TextToSpeechClient()
+# client = texttospeech.TextToSpeechClient()
 
 
-def synthesize_speech(text, language_code="es-US", voice_name="es-US-Neural2-A"):
-    """
-    Convert text to speech using Google Text-to-Speech API with Spanish voice.
+# def synthesize_speech(text, language_code="es-US", voice_name="es-US-Neural2-A"):
+#     """
+#     Convert text to speech using Google Text-to-Speech API with Spanish voice.
 
-    Args:
-        text (str): The text to convert to speech.
-        language_code (str): Language code for the voice (default is 'es-ES').
-        voice_name (str): Specific voice name (default is 'es-ES-Wavenet-A').
+#     Args:
+#         text (str): The text to convert to speech.
+#         language_code (str): Language code for the voice (default is 'es-ES').
+#         voice_name (str): Specific voice name (default is 'es-ES-Wavenet-A').
 
-    Returns:
-        The audio content.
-    """
-    client = texttospeech.TextToSpeechClient()
+#     Returns:
+#         The audio content.
+#     """
+#     client = texttospeech.TextToSpeechClient()
 
-    synthesis_input = texttospeech.SynthesisInput(text=text)
+#     synthesis_input = texttospeech.SynthesisInput(text=text)
 
-    voice = texttospeech.VoiceSelectionParams(
-        language_code=language_code,
-        name=voice_name,
-    )
+#     voice = texttospeech.VoiceSelectionParams(
+#         language_code=language_code,
+#         name=voice_name,
+#     )
 
-    audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.MP3
-    )
+#     audio_config = texttospeech.AudioConfig(
+#         audio_encoding=texttospeech.AudioEncoding.MP3
+#     )
 
-    response = client.synthesize_speech(
-        input=synthesis_input, voice=voice, audio_config=audio_config
-    )
+#     response = client.synthesize_speech(
+#         input=synthesis_input, voice=voice, audio_config=audio_config
+#     )
 
-    return response.audio_content
+#     return response.audio_content
 
 
 ####### IMAGE FUNCTIONS #######
