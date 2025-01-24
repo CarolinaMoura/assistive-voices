@@ -14,7 +14,6 @@
 class DLabImage {
 private:
   File openFile(SDClass &sd);
-  int levenshtein(String s1, String s2);
 public:
   String path;
   String caption;
