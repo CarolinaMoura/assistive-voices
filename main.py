@@ -1,17 +1,13 @@
-import json
+import time
 import unicodedata
 import streamlit as st
 from PIL import Image
-from gtts import gTTS
-from io import BytesIO
 import io
 from typing import NewType
 from google.cloud import texttospeech
 from google.oauth2 import service_account
 
 import zipfile
-
-import toml
 
 ####### UTILS #######
 
@@ -189,6 +185,7 @@ translations = {
 
 def create_zip_file():
     zip_buffer = io.BytesIO()
+    time.sleep(1)
     with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         if "processed_image" in st.session_state:
             zip_file.writestr(f"{st.session_state.filename}", st.session_state.processed_image.getvalue())
