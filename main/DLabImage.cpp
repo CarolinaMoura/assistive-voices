@@ -128,8 +128,6 @@ int DLabImage::getAudioFile() {
     int cur_track_number_score = (this->caption).length();
     String line ;
 
-    Serial.println("Trying to play " + this->caption);
-
     while ( metadata_file.available() ) {
         line = metadata_file.readStringUntil( '\n' ) ;
         int score = max(line.length()-1, this->caption.length())-min(line.length()-1, this->caption.length());
