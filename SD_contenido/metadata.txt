@@ -199,6 +199,7 @@ rect ngulo
 refresco
 refrigerador
 regla
+regresar
 reloj
 repollo
 resistol
