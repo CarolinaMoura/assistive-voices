@@ -4,7 +4,6 @@ abril
 abuela
 abuelo
 aburrido
-aburrido
 adi¢s
 agosto
 agua
@@ -41,7 +40,6 @@ camisa
 cami¢n
 campo
 cansado
-cansado
 cantar
 carpintero
 carro
@@ -67,7 +65,6 @@ cuello
 c¡rculo
 dedos
 dibujar
-dibujar
 diciembre
 doctor
 domingo
@@ -79,13 +76,11 @@ empanada
 enero
 enfermera
 enojado
-enojado
 escuchar cuento
 escuchar m£sica
 escuela
 espagueti
 espalda
-estrella
 estrella
 estufa
 est¢mago
@@ -115,7 +110,6 @@ ir a casa
 ir al ba¤o
 jarra
 jueves
-jugar
 jugar
 jugo
 julio
@@ -155,7 +149,6 @@ modista
 morado
 mototaxi
 naranja
-naranja
 nariz
 no
 noche
@@ -173,6 +166,7 @@ papa
 pap 
 parque
 pasear
+pastel
 patines
 pecho
 pepino
@@ -210,6 +204,7 @@ r bano
 r¡o
 sacapuntas
 salbut
+salbute
 sandalias
 sand¡a
 sapo
@@ -241,7 +236,6 @@ tortillera
 tortuga
 tren
 triciclo
-triste
 triste
 tri ngulo
 trusa
