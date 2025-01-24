@@ -130,9 +130,9 @@ int DLabImage::getAudioFile() {
 
     while ( metadata_file.available() ) {
         line = metadata_file.readStringUntil( '\n' ) ;
-        int score = max(line.length()-1, this->caption.length())-min(line.length()-1, this->caption.length());
+        int score = max(line.length(), this->caption.length())-min(line.length(), this->caption.length());
 
-        for(int i = 0; i < min(line.length()-1, this->caption.length()); i++)
+        for(int i = 0; i < min(line.length(), this->caption.length()); i++)
           score += (line[i] != (this->caption)[i]);
         
         if (score < cur_track_number_score) {
