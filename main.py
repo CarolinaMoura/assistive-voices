@@ -1,3 +1,4 @@
+import json
 import unicodedata
 import streamlit as st
 from PIL import Image
@@ -5,6 +6,9 @@ from gtts import gTTS
 from io import BytesIO
 import io
 from typing import NewType
+from google.cloud import texttospeech
+from google.oauth2 import service_account
+
 import zipfile
 
 import toml
@@ -14,6 +18,24 @@ import toml
 Int16 = NewType('Int16', int)
 Int8 = NewType('Int8', int)
 
+# Replace the individual secret accesses with a single JSON structure
+service_account_info = {
+    "type": "service_account",
+    "project_id": st.secrets["project_id"],
+    "private_key_id": st.secrets["private_key_id"],
+    "private_key": st.secrets["private_key"].strip(),
+    "client_email": st.secrets["client_email"],
+    "client_id": st.secrets["client_id"],
+    "auth_uri": st.secrets["auth_uri"],
+    "token_uri": st.secrets["token_uri"],
+    "auth_provider_x509_cert_url": st.secrets["auth_provider_x509_cert_url"],
+    "client_x509_cert_url": st.secrets["client_x509_cert_url"],
+    "universe_domain": st.secrets["universe_domain"]
+}
+credentials = service_account.Credentials.from_service_account_info(service_account_info)
+
+# Initialize the Text-to-Speech client
+client = texttospeech.TextToSpeechClient(credentials=credentials)
 
 def get_high_and_low_bytes(num: Int16) -> list[Int8, Int8]:
     high_byte = (num >> 8) & 0xFF
@@ -26,7 +48,7 @@ def remove_accents(input_str: str) -> str:
     return "".join([c for c in no_accents if c.isalnum() or c == '_']).replace(" ", "_")
 
 
-def synthesize_speech(text):
+def synthesize_speech(text, language_code="es-US", voice_name="es-US-Neural2-A"):
     """
     Convert text to speech using Google Text-to-Speech API with Spanish voice.
 
@@ -38,10 +60,24 @@ def synthesize_speech(text):
     Returns:
         The audio content.
     """
-    sound_file = BytesIO()
-    tts = gTTS(text, lang='es', tld="com.mx")
-    tts.write_to_fp(sound_file)
-    return sound_file
+    # client = texttospeech.TextToSpeechClient(client_options=client_options)
+
+    synthesis_input = texttospeech.SynthesisInput(text=text)
+
+    voice = texttospeech.VoiceSelectionParams(
+        language_code=language_code,
+        name=voice_name,
+    )
+
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=texttospeech.AudioEncoding.MP3
+    )
+
+    response = client.synthesize_speech(
+        input=synthesis_input, voice=voice, audio_config=audio_config
+    )
+
+    return response.audio_content
 
 
 ####### IMAGE FUNCTIONS #######
@@ -158,10 +194,7 @@ def create_zip_file():
             zip_file.writestr(f"{st.session_state.filename}", st.session_state.processed_image.getvalue())
         
         if "speech_file" in st.session_state:
-            # Get the audio content from BytesIO object
-            st.session_state.speech_file.seek(0)  # Reset pointer to start
-            audio_content = st.session_state.speech_file.getvalue()
-            zip_file.writestr(st.session_state.audio_filename, audio_content)
+            zip_file.writestr(st.session_state.audio_filename, st.session_state.speech_file)
         
         if "updated_metadata" in st.session_state:
             zip_file.writestr(st.session_state.metadata_filename, st.session_state.updated_metadata)
