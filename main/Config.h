@@ -28,8 +28,8 @@ constexpr uint16_t LIGHT_GREEN = 0x2727;
 const GFXfont ACTIVE_FONT PROGMEM = rroboto12pt8b;
 
 // Button pins
-constexpr int leftButtonPin = 8;
-constexpr int rightButtonPin = 5;
+constexpr int leftButtonPin = 5;
+constexpr int rightButtonPin = 8;
 constexpr int teacherButtonPin = 2;
 
 // File and category settings
