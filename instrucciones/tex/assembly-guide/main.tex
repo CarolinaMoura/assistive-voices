@@ -1,8 +1,14 @@
 \documentclass{article}
 
-\usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage[labelformat=empty]{caption}
+\usepackage{tocloft}
+\usepackage[hidelinks,
+            colorlinks=true,
+            linkcolor=blue,
+            urlcolor=blue,
+            bookmarks=true,
+            bookmarksopen=true]{hyperref}
 
 \setlength{\parindent}{0pt}
 
@@ -13,7 +19,12 @@
 
 \maketitle
 
-\section{Software}
+\pagenumbering{arabic}
+\tableofcontents
+\vspace{2cm} 
+\clearpage
+\pagenumbering{arabic}
+\section{Software}\label{sec:software}
 \subsection{Installing the Arduino IDE}
 To install the Arduino IDE, visit the official Arduino website at the following link:
 
@@ -60,6 +71,7 @@ Inside that folder, look for the folder ``libraries''. Click on ``MCUFRIEND\_kbv
     \item Edit \texttt{mcufriend\_special.h}: in the 6th line, remove the two slashes (\texttt{//}) before \texttt{\#define USE\_MEGA\_16BIT\_SHIELD}.
 \end{itemize}
 
+\newpage
 \subsection{Downloading the code}
 To download the code, go to the following link:
 
@@ -89,7 +101,8 @@ Now, unzip the downloaded folder. Inside the unzipped folder, you will find a fo
 
 Now you have the code open in the Arduino IDE.
 
-\section{SD cards}
+\newpage
+\section{SD cards}\label{sec:sdcards}
 Now we need to load the SD cards with the necessary files. You must have 2 SD cards, one for the images and another for the audio files. It doesn't matter which is which, but, if you have the ones donated by the D-Lab group to CAM 6, the one with 32GB should be the image one, and the one with 16GB should be the audio one. This is not very important; since we're resetting their content in this section, you can very well swap them if you wish. However, you should always keep track of which is which, for this will be important for future individualized addition of images and audios.
 
 \subsection{Images}
@@ -103,9 +116,11 @@ Inside the unzipped folder we downloaded in the previous section, let's go to th
 Do the same as before: plug in the audio SD card, and erase whatever files are inside of it (trick: you can select any file within the SD card and press ctrl + A, then right-click with the mouse in any of selected files and select ``delete''). Now, go to the folder named ``SD\_audios'' inside the unzipped folder. There will be several files -- more than 260. You can apply the previous trick: ctrl + A in any of them, and then when you proceed to copy any of them to the SD card, all of them will be copied at once. Once you've copied all of them, eject the audio SD card from the computer.
 % Detailed assembly instructions.
 
-\section{The circuit}
+\newpage
+\section{The circuit}\label{sec:circuit}
 
-\section{Common failures and how to solve them}
+\newpage
+\section{Common failures and how to solve them}\label{sec:failures}
 \subsection{While using the device}
 \begin{itemize}
     \item The screen turns white or freezes, or the words appear weird: you should try

@@ -1,4 +1,5 @@
 instrucciones/tex/assembly-guide/*.aux
 instrucciones/tex/assembly-guide/*.out
 instrucciones/tex/assembly-guide/*.log
+instrucciones/tex/assembly-guide/*.toc
 .streamlit
