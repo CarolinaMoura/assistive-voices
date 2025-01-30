@@ -89,16 +89,49 @@ Now, unzip the downloaded folder. Inside the unzipped folder, you will find a fo
 
 Now you have the code open in the Arduino IDE.
 
-\section{Tools and Materials}
-% List of tools and materials needed.
+\section{SD cards}
+Now we need to load the SD cards with the necessary files. You must have 2 SD cards, one for the images and another for the audio files. It doesn't matter which is which, but, if you have the ones donated by the D-Lab group to CAM 6, the one with 32GB should be the image one, and the one with 16GB should be the audio one. This is not very important; since we're resetting their content in this section, you can very well swap them if you wish. However, you should always keep track of which is which, for this will be important for future individualized addition of images and audios.
 
-\section{Step-by-Step Instructions}
+\subsection{Images}
+
+Plug in the image SD card to the computer. If you can't find a place to insert it into your computer, you may need an adaptor. Once you've inserted it, open the file explorer and look for the SD card. It should be named something like ``SD'' or ``NO NAME''. Click on it. If it has anything inside of it, you can erase those files.
+
+
+Inside the unzipped folder we downloaded in the previous section, let's go to the folder named ``SD\_images''. There will be two files inside of it, named ``main'' and ``metadata.txt''. Copy both of these to the SD. You can now eject the image SD card from the computer.
+
+\subsection{Audios}
+Do the same as before: plug in the audio SD card, and erase whatever files are inside of it (trick: you can select any file within the SD card and press ctrl + A, then right-click with the mouse in any of selected files and select ``delete''). Now, go to the folder named ``SD\_audios'' inside the unzipped folder. There will be several files -- more than 260. You can apply the previous trick: ctrl + A in any of them, and then when you proceed to copy any of them to the SD card, all of them will be copied at once. Once you've copied all of them, eject the audio SD card from the computer.
 % Detailed assembly instructions.
 
-\section{Troubleshooting}
-% Common issues and solutions.
+\section{The circuit}
 
-\section{Conclusion}
-% Final remarks and tips.
+\section{Common failures and how to solve them}
+\subsection{While using the device}
+\begin{itemize}
+    \item The screen turns white or freezes, or the words appear weird: you should try
+        \begin{itemize}
+            \item Reset the screen with the white button on the top part of the screen. It's possible that this hidden button is behind the cardboard; if this is the case, press the screen from behind against the cardboard.
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=0.5\textwidth]{../images/screen_button.jpg}
+                \caption{The reset button.}
+            \end{figure}
+            \item Disconnect and reconnect the device to the wall.
+            \item Use another cable or another adapter connected to the wall.
+        \end{itemize}
+        \item The buttons stop responding:
+        \begin{itemize}
+            \item If all buttons stop responding, try restarting the screen, as seen in the previous bullet point.
+            \item If it's only one, check that the cables are in place; it is likely that a cable has become disconnected.
+        \end{itemize}
+\end{itemize}
+\subsection{After modifying the SD cards}
+\begin{itemize}
+    \item The screen doesn't show any images:
+    \begin{itemize}
+        \item Double-check if the SD cards are in the right place (SD with images in the SD reader, SD with audio in the black MP3 player -- i.e., SD with images in the right, and SD with audio in the left).
+        \item Check if the SD cards are correctly inserted. Sometimes there is still space to push it inside of the readers, i.e., check if they're ``loose''.
+    \end{itemize}
+\end{itemize}
 
 \end{document}
