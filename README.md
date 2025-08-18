@@ -21,7 +21,6 @@ Además, deberás instalar las siguientes bibliotecas de Arduino:
 - Adafruit GFX
 - MCUFRIEND_kbv
 - SD
-- 
 
 Detalles adicionales están disponibles en las guías mencionadas anteriormente.
 
